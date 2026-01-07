@@ -7,7 +7,9 @@ class ProductCard extends StatelessWidget {
   final String? description;
   final double rating;
   final double? price;
+  final String currencySymbol;
   final VoidCallback? onTap;
+  final VoidCallback? onAddTap;
 
   const ProductCard({
     super.key,
@@ -16,7 +18,9 @@ class ProductCard extends StatelessWidget {
     this.description,
     required this.rating,
     this.price,
+    this.currencySymbol = '£',
     this.onTap,
+    this.onAddTap,
   });
 
   @override
@@ -122,14 +126,35 @@ class ProductCard extends StatelessWidget {
                   ],
                   if (price != null) ...[
                     const SizedBox(height: 8),
-                    Text(
-                      '\$${price!.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$currencySymbol ${price!.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontFamily: 'Sora',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: onAddTap,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: AppColors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ],

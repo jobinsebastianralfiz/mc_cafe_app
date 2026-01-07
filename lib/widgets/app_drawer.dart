@@ -111,6 +111,13 @@ class AppDrawer extends StatelessWidget {
                         isSelected: selectedIndex == 5,
                         onTap: () => onItemTap(5),
                       ),
+                      _DrawerItem(
+                        icon: Icons.location_on_outlined,
+                        selectedIcon: Icons.location_on_rounded,
+                        label: 'My Address',
+                        isSelected: selectedIndex == 6,
+                        onTap: () => onItemTap(6),
+                      ),
                       _DrawerItemWithImage(
                         imagePath: 'assets/icons/logout.png',
                         label: 'Logout',
@@ -141,13 +148,13 @@ class AppDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.white, width: 2),
-              color: AppColors.white,
             ),
-            child: const ClipOval(
-              child: Icon(
-                Icons.person,
-                size: 40,
-                color: AppColors.primary,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/avatar.png',
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
               ),
             ),
           ),

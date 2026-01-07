@@ -10,6 +10,8 @@ import '../../widgets/category_icon.dart';
 import '../../widgets/pattern_background.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../wishlist/wishlist_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,6 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<String> _chips = ['Coffee', 'Drinks', 'Food', 'Combos', 'Desserts'];
 
+  final List<String> _banners = [
+    'assets/images/banners/signature_lattes.png',
+    'assets/images/banners/delicious_burgers.png',
+    'assets/images/banners/signature_lattes.png',
+  ];
+
   void _openDrawer() {
     _scaffoldKey.currentState?.openDrawer();
   }
@@ -65,15 +73,124 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (index == 1) {
+      // Products
+      Navigator.pushNamed(context, AppRoutes.products);
+      return;
+    }
+
+    if (index == 2) {
+      // Orders
+      Navigator.pushNamed(context, AppRoutes.orders);
+      return;
+    }
+
+    if (index == 3) {
+      // Notifications
+      Navigator.pushNamed(context, AppRoutes.notifications);
+      return;
+    }
+
+    if (index == 4) {
+      // Wishlist
+      Navigator.pushNamed(context, AppRoutes.wishlist);
+      return;
+    }
+
+    if (index == 5) {
+      // Profile
+      Navigator.pushNamed(context, AppRoutes.profile);
+      return;
+    }
+
+    if (index == 6) {
+      // My Address
+      Navigator.pushNamed(context, AppRoutes.myAddress);
+      return;
+    }
+
     setState(() {
       _selectedDrawerIndex = index;
     });
   }
 
   void _onNavTap(int index) {
+    if (index == 2) {
+      // Cart - push as separate screen
+      Navigator.pushNamed(context, AppRoutes.cart);
+      return;
+    }
     setState(() {
       _currentNavIndex = index;
     });
+  }
+
+  Widget _getBodyForIndex(int index) {
+    switch (index) {
+      case 1:
+        return const WishlistScreen(showBottomNav: false);
+      case 3:
+        return const ProfileScreen(showBottomNav: false);
+      default:
+        return _buildHomeContent();
+    }
+  }
+
+  Widget _buildHomeContent() {
+    return PatternBackground(
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.paddingL,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+
+                      // Header
+                      _buildHeader(),
+
+                      const SizedBox(height: 20),
+
+                      // Search bar
+                      _buildSearchBar(),
+
+                      const SizedBox(height: 20),
+
+                      // Banner
+                      _buildBanner(),
+
+                      const SizedBox(height: 24),
+
+                      // Categories section
+                      _buildCategoriesSection(),
+
+                      const SizedBox(height: 20),
+
+                      // Category chips
+                      _buildCategoryChips(),
+
+                      const SizedBox(height: 20),
+
+                      // Products section
+                      _buildProductsSection(),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -85,60 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onItemTap: _onDrawerItemTap,
         onClose: () => Navigator.pop(context),
       ),
-      body: PatternBackground(
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppConstants.paddingL,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-
-                        // Header
-                        _buildHeader(),
-
-                        const SizedBox(height: 20),
-
-                        // Search bar
-                        _buildSearchBar(),
-
-                        const SizedBox(height: 20),
-
-                        // Banner
-                        _buildBanner(),
-
-                        const SizedBox(height: 24),
-
-                        // Categories section
-                        _buildCategoriesSection(),
-
-                        const SizedBox(height: 20),
-
-                        // Category chips
-                        _buildCategoryChips(),
-
-                        const SizedBox(height: 20),
-
-                        // Products section
-                        _buildProductsSection(),
-
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: _getBodyForIndex(_currentNavIndex),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _onNavTap,
@@ -156,12 +220,14 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.primary, width: 2),
-            color: AppColors.primaryLight,
           ),
-          child: const Icon(
-            Icons.person,
-            color: AppColors.primary,
-            size: 24,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/avatar.png',
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
 
@@ -209,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Notification icon
         GestureDetector(
           onTap: () {
-            // TODO: Handle notification
+            Navigator.pushNamed(context, AppRoutes.notifications);
           },
           child: Image.asset(
             'assets/icons/notification.png',
@@ -305,13 +371,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return FadeInWidget(
       delay: const Duration(milliseconds: 200),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          'assets/images/banners/signature_lattes.png',
-          height: 140,
-          width: double.infinity,
-          fit: BoxFit.cover,
+      child: SizedBox(
+        height: 140,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          itemCount: _banners.length,
+          itemBuilder: (context, index) {
+            return Container(
+              width: MediaQuery.of(context).size.width - 100,
+              margin: EdgeInsets.only(
+                left: index == 0 ? 0 : 8,
+                right: index == _banners.length - 1 ? 0 : 8,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  _banners[index],
+                  height: 140,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -335,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 100,
+          height: 120,
           child: _isLoading
               ? ListView.separated(
                   scrollDirection: Axis.horizontal,
@@ -452,7 +534,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       rating: 4.8,
                       price: 4.99,
                       onTap: () {
-                        // TODO: Navigate to product detail
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.productDetail,
+                          arguments: {
+                            'name': 'Mocha Latte',
+                            'description': 'A cappuccino is an approximately 150 ml (5 oz) beverage, with 25 ml of espresso coffee and 85ml of fresh milk',
+                            'type': 'Ice/Hot',
+                            'price': 4.99,
+                            'rating': 4.8,
+                            'reviews': 230,
+                            'image': 'assets/images/coffee_cup.png',
+                          },
+                        );
                       },
                     ),
                   );

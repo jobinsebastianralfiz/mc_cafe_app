@@ -23,11 +23,11 @@ class CategoryIcon extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 90,
+            height: 90,
             decoration: BoxDecoration(
               color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isSelected ? AppColors.primary : AppColors.border,
                 width: 1,
