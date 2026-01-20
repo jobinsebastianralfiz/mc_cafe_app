@@ -1,8 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+
 import '../../config/theme/app_colors.dart';
+import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/enums/app_enums.dart';
+import '../../data/models/cart_model.dart';
+import '../../providers/cart_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -12,74 +21,12 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
-  final List<Map<String, dynamic>> _cartItems = [
-    {
-      'name': 'Cappuccino',
-      'description': 'Dalgona Macha',
-      'price': 4.00,
-      'quantity': 1,
-      'image': 'assets/images/coffee_cup.png',
-    },
-    {
-      'name': 'Cappuccino',
-      'description': 'Bursting Blueberry',
-      'price': 1.30,
-      'quantity': 2,
-      'image': 'assets/images/coffee_cup.png',
-    },
-    {
-      'name': 'Cappuccino',
-      'description': 'Cinnamon & Cocoa',
-      'price': 2.00,
-      'quantity': 1,
-      'image': 'assets/images/coffee_cup.png',
-    },
-  ];
-
-  double get _subtotal {
-    double total = 0;
-    for (var item in _cartItems) {
-      total += (item['price'] as double) * (item['quantity'] as int);
-    }
-    return total;
-  }
-
-  double get _taxes => 0.00;
-
-  double get _grandTotal => _subtotal + _taxes;
-
-  void _incrementQuantity(int index) {
-    setState(() {
-      _cartItems[index]['quantity']++;
-    });
-  }
-
-  void _decrementQuantity(int index) {
-    setState(() {
-      if (_cartItems[index]['quantity'] > 1) {
-        _cartItems[index]['quantity']--;
-      }
-    });
-  }
-
-  void _removeItem(int index) {
-    final removedItem = _cartItems[index];
-
-    _listKey.currentState?.removeItem(
-      index,
-      (context, animation) => _buildAnimatedCartItem(
-        removedItem,
-        index,
-        animation,
-        isRemoving: true,
-      ),
-      duration: const Duration(milliseconds: 300),
-    );
-
-    setState(() {
-      _cartItems.removeAt(index);
+  @override
+  void initState() {
+    super.initState();
+    // Load cart when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartProvider>().loadCart(forceRefresh: true);
     });
   }
 
@@ -96,9 +43,21 @@ class _CartScreenState extends State<CartScreen> {
 
               // Cart Content
               Expanded(
-                child: _cartItems.isEmpty
-                    ? _buildEmptyCart()
-                    : SingleChildScrollView(
+                child: Consumer<CartProvider>(
+                  builder: (context, cartProvider, child) {
+                    if (cartProvider.status == LoadingStatus.loading &&
+                        cartProvider.items.isEmpty) {
+                      return _buildLoadingState();
+                    }
+
+                    if (cartProvider.isEmpty) {
+                      return _buildEmptyCart();
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => cartProvider.loadCart(forceRefresh: true),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppConstants.paddingL,
@@ -107,17 +66,15 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               const SizedBox(height: 16),
 
-                              // Cart Items with AnimatedList
-                              AnimatedList(
-                                key: _listKey,
+                              // Cart Items
+                              ListView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                initialItemCount: _cartItems.length,
-                                itemBuilder: (context, index, animation) {
-                                  return _buildAnimatedCartItem(
-                                    _cartItems[index],
-                                    index,
-                                    animation,
+                                itemCount: cartProvider.items.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: _buildCartItem(cartProvider.items[index]),
                                   );
                                 },
                               ),
@@ -125,24 +82,51 @@ class _CartScreenState extends State<CartScreen> {
                               const SizedBox(height: 16),
 
                               // Apply Coupon Code
-                              _buildCouponButton(),
+                              _buildCouponButton(cartProvider),
 
                               const SizedBox(height: 24),
 
                               // Order Summary
-                              _buildOrderSummary(),
+                              _buildOrderSummary(cartProvider),
 
                               const SizedBox(height: 120),
                             ],
                           ),
                         ),
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _cartItems.isEmpty ? null : _buildBottomBar(),
+      bottomNavigationBar: Consumer<CartProvider>(
+        builder: (context, cartProvider, child) {
+          if (cartProvider.isEmpty) return const SizedBox.shrink();
+          return _buildBottomBar(cartProvider);
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.paddingL),
+      child: Column(
+        children: List.generate(
+          3,
+          (index) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: ShimmerLoading(
+              width: double.infinity,
+              height: 120,
+              borderRadius: 16,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -200,33 +184,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildAnimatedCartItem(
-    Map<String, dynamic> item,
-    int index,
-    Animation<double> animation, {
-    bool isRemoving = false,
-  }) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: isRemoving ? const Offset(1, 0) : const Offset(-1, 0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: isRemoving ? Curves.easeOut : Curves.easeOutCubic,
-        )),
-        child: FadeTransition(
-          opacity: animation,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _buildCartItem(index, item),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -267,14 +224,66 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
 
-          // Empty space for symmetry
-          const SizedBox(width: 40),
+          // Clear cart button
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              if (cartProvider.isEmpty) {
+                return const SizedBox(width: 40);
+              }
+              return GestureDetector(
+                onTap: () => _showClearCartDialog(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCartItem(int index, Map<String, dynamic> item) {
+  void _showClearCartDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Cart'),
+        content: const Text('Are you sure you want to remove all items from your cart?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<CartProvider>().clearCart();
+            },
+            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCartItem(CartItem item) {
+    final cartProvider = context.read<CartProvider>();
+    final imageUrl = item.productImage != null
+        ? (item.productImage!.startsWith('http')
+            ? item.productImage
+            : ApiConfig.getImageUrl(item.productImage))
+        : null;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -294,12 +303,27 @@ class _CartScreenState extends State<CartScreen> {
           // Product Image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              item['image'],
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
-            ),
+            child: imageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: AppColors.lightGrey,
+                      highlightColor: AppColors.white,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => _buildImagePlaceholder(),
+                  )
+                : _buildImagePlaceholder(),
           ),
 
           const SizedBox(width: 12),
@@ -313,17 +337,21 @@ class _CartScreenState extends State<CartScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item['name'],
-                      style: const TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textHeading,
+                    Expanded(
+                      child: Text(
+                        item.productName,
+                        style: const TextStyle(
+                          fontFamily: 'Sora',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textHeading,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => _removeItem(index),
+                      onTap: () => cartProvider.removeFromCart(item.id),
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         child: const Icon(
@@ -338,15 +366,32 @@ class _CartScreenState extends State<CartScreen> {
 
                 const SizedBox(height: 4),
 
-                // Description
-                Text(
-                  item['description'],
-                  style: const TextStyle(
-                    fontFamily: 'Sora',
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
+                // Variant name if available
+                if (item.variantName != null)
+                  Text(
+                    item.variantName!,
+                    style: const TextStyle(
+                      fontFamily: 'Sora',
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
+
+                // Addons if available
+                if (item.hasAddons)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      item.addons!.map((a) => a.name).join(', '),
+                      style: const TextStyle(
+                        fontFamily: 'Sora',
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
 
                 const SizedBox(height: 12),
 
@@ -355,7 +400,7 @@ class _CartScreenState extends State<CartScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '£ ${item['price'].toStringAsFixed(2)}',
+                      '£${item.itemTotal.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontFamily: 'Sora',
                         fontSize: 16,
@@ -369,13 +414,19 @@ class _CartScreenState extends State<CartScreen> {
                       children: [
                         _buildQuantityButton(
                           icon: Icons.remove,
-                          onTap: () => _decrementQuantity(index),
+                          onTap: () {
+                            if (item.quantity > 1) {
+                              cartProvider.updateQuantity(item.id, item.quantity - 1);
+                            } else {
+                              cartProvider.removeFromCart(item.id);
+                            }
+                          },
                         ),
                         Container(
                           width: 40,
                           alignment: Alignment.center,
                           child: Text(
-                            '${item['quantity']}',
+                            '${item.quantity}',
                             style: const TextStyle(
                               fontFamily: 'Sora',
                               fontSize: 16,
@@ -386,7 +437,9 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         _buildQuantityButton(
                           icon: Icons.add,
-                          onTap: () => _incrementQuantity(index),
+                          onTap: () {
+                            cartProvider.updateQuantity(item.id, item.quantity + 1);
+                          },
                         ),
                       ],
                     ),
@@ -396,6 +449,22 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Icon(
+        Icons.image_outlined,
+        size: 40,
+        color: AppColors.grey,
       ),
     );
   }
@@ -423,32 +492,52 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCouponButton() {
+  Widget _buildCouponButton(CartProvider cartProvider) {
+    final hasCoupon = cartProvider.cart.hasCoupon;
+
     return GestureDetector(
       onTap: () async {
-        final result = await Navigator.pushNamed(context, AppRoutes.redeemCoupon);
-        if (result != null && result is String) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Coupon "$result" applied!'),
-              backgroundColor: AppColors.primary,
-            ),
-          );
+        if (hasCoupon) {
+          // Remove coupon
+          cartProvider.removeCoupon();
+        } else {
+          // Apply coupon
+          final result = await Navigator.pushNamed(context, AppRoutes.redeemCoupon);
+          if (result != null && result is String && mounted) {
+            final success = await cartProvider.applyCoupon(result);
+            if (success && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Coupon "$result" applied!'),
+                  backgroundColor: AppColors.primary,
+                ),
+              );
+            } else if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(cartProvider.errorMessage ?? 'Failed to apply coupon'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
         }
       },
       child: ClipPath(
         clipper: _TicketClipper(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.textHeading,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                'Apply Coupon Code',
-                style: TextStyle(
+                hasCoupon
+                    ? 'Coupon: ${cartProvider.cart.couponCode}'
+                    : 'Apply Coupon Code',
+                style: const TextStyle(
                   fontFamily: 'Sora',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -456,7 +545,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               Icon(
-                Icons.chevron_right,
+                hasCoupon ? Icons.close : Icons.chevron_right,
                 color: AppColors.white,
                 size: 24,
               ),
@@ -467,31 +556,22 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildOrderSummary() {
+  Widget _buildOrderSummary(CartProvider cartProvider) {
     return Column(
       children: [
-        // Taxes Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Taxes',
-              style: TextStyle(
-                fontFamily: 'Sora',
-                fontSize: 16,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            Text(
-              '£ ${_taxes.toStringAsFixed(0).padLeft(2, '0')}',
-              style: const TextStyle(
-                fontFamily: 'Sora',
-                fontSize: 16,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
+        // Subtotal Row
+        _buildSummaryRow('Subtotal', cartProvider.subtotal),
+
+        const SizedBox(height: 12),
+
+        // Tax Row
+        _buildSummaryRow('Tax (${cartProvider.cart.summary.taxRate.toStringAsFixed(0)}%)', cartProvider.tax),
+
+        // Discount Row (if any)
+        if (cartProvider.discount > 0) ...[
+          const SizedBox(height: 12),
+          _buildSummaryRow('Discount', -cartProvider.discount, isDiscount: true),
+        ],
 
         const SizedBox(height: 12),
 
@@ -509,7 +589,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             Text(
-              '£ ${_grandTotal.toStringAsFixed(2)}',
+              '£${cartProvider.total.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontFamily: 'Sora',
                 fontSize: 20,
@@ -523,7 +603,31 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildSummaryRow(String label, double amount, {bool isDiscount = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Sora',
+            fontSize: 16,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        Text(
+          '${isDiscount ? '-' : ''}£${amount.abs().toStringAsFixed(2)}',
+          style: TextStyle(
+            fontFamily: 'Sora',
+            fontSize: 16,
+            color: isDiscount ? Colors.green : AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomBar(CartProvider cartProvider) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
@@ -550,10 +654,10 @@ class _CartScreenState extends State<CartScreen> {
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
-              'Pay Now',
-              style: TextStyle(
+              'Pay Now • £${cartProvider.total.toStringAsFixed(2)}',
+              style: const TextStyle(
                 fontFamily: 'Sora',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

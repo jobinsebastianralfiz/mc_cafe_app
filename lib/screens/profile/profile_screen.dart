@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import '../../providers/auth_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/pattern_background.dart';
 
@@ -14,9 +17,28 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _nameController = TextEditingController(text: 'Rishan Pathari');
-  final _mobileController = TextEditingController(text: '+91 1234567890');
-  final _emailController = TextEditingController(text: 'rishanang@gmail.com');
+  final _nameController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _emailController = TextEditingController();
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _loadUserData();
+      _isInitialized = true;
+    }
+  }
+
+  void _loadUserData() {
+    final user = context.read<AuthProvider>().user;
+    if (user != null) {
+      _nameController.text = user.name;
+      _mobileController.text = user.phone ?? '';
+      _emailController.text = user.email;
+    }
+  }
 
   @override
   void dispose() {
@@ -26,13 +48,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  void _updateProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile updated successfully'),
-        backgroundColor: AppColors.primary,
-      ),
+  Future<void> _updateProfile() async {
+    final authProvider = context.read<AuthProvider>();
+
+    final success = await authProvider.updateProfile(
+      name: _nameController.text.trim(),
+      phone: _mobileController.text.trim(),
     );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? 'Failed to update profile'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   void _showDeleteAccountDialog() {
@@ -198,6 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileCard() {
+    final user = context.watch<AuthProvider>().user;
+    final firstName = user?.name.split(' ').first ?? 'Guest';
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -205,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -224,12 +267,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   border: Border.all(color: AppColors.primary, width: 3),
                 ),
                 child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/avatar.png',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
+                  child: user?.avatar != null
+                      ? Image.network(
+                          user!.avatar!,
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return _buildDefaultAvatar(firstName);
+                          },
+                        )
+                      : _buildDefaultAvatar(firstName),
                 ),
               ),
               Positioned(
@@ -283,29 +331,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 24),
 
           // Update Profile Button
-          GestureDetector(
-            onTap: _updateProfile,
-            child: Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text(
-                  'Update Profile',
-                  style: TextStyle(
-                    fontFamily: 'Sora',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.white,
+          Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              return GestureDetector(
+                onTap: auth.isLoading ? null : _updateProfile,
+                child: Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: auth.isLoading
+                        ? AppColors.primary.withValues(alpha: 0.7)
+                        : AppColors.primary,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: auth.isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: AppColors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Update Profile',
+                            style: TextStyle(
+                              fontFamily: 'Sora',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.white,
+                            ),
+                          ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar(String name) {
+    return Container(
+      width: 100,
+      height: 100,
+      color: AppColors.primary,
+      child: Center(
+        child: Text(
+          name.isNotEmpty ? name[0].toUpperCase() : 'G',
+          style: const TextStyle(
+            fontFamily: 'Sora',
+            fontSize: 40,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
+          ),
+        ),
       ),
     );
   }

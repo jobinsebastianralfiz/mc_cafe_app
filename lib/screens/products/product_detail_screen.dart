@@ -1,6 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+
 import '../../config/theme/app_colors.dart';
+import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
+import '../../data/models/product_model.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
 
@@ -14,34 +22,95 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  int _selectedSizeIndex = 1; // Default to Medium
+  int _selectedVariantIndex = 0; // Default to first variant
   final Set<int> _selectedExtras = {};
-  bool _isFavorite = false;
   bool _isAddedToCart = false;
 
-  final List<String> _sizes = ['S', 'M', 'L'];
+  // Fallback sizes when product has no variants
+  final List<String> _fallbackSizes = ['S', 'M', 'L'];
 
   final List<Map<String, dynamic>> _extras = [
-    {'name': 'Extra Shot', 'price': 4.53},
-    {'name': 'Almond Milk', 'price': 4.53},
-    {'name': 'Caramel Syrup', 'price': 4.53},
-    {'name': 'Vanilla', 'price': 3.99},
-    {'name': 'Hazelnut', 'price': 3.99},
+    {'name': 'Extra Shot', 'price': 0.50},
+    {'name': 'Almond Milk', 'price': 0.60},
+    {'name': 'Caramel Syrup', 'price': 0.40},
+    {'name': 'Vanilla', 'price': 0.40},
+    {'name': 'Hazelnut', 'price': 0.45},
   ];
 
-  // Default product data if none provided
-  Map<String, dynamic> get _product => widget.product ?? {
-    'name': 'Caffe Mocha',
-    'description': 'A cappuccino is an approximately 150 ml (5 oz) beverage, with 25 ml of espresso coffee and 85ml of fresh milk',
-    'type': 'Ice/Hot',
-    'price': 4.53,
-    'rating': 4.8,
-    'reviews': 230,
-    'image': 'assets/images/coffee_cup.png',
-  };
+  // Get Product object if available
+  Product? get _productModel {
+    if (widget.product != null && widget.product!['product'] is Product) {
+      return widget.product!['product'] as Product;
+    }
+    return null;
+  }
+
+  // Check if product has variants
+  bool get _hasVariants {
+    return _productModel?.hasVariants == true &&
+           _productModel!.variants.isNotEmpty;
+  }
+
+  // Get variants list
+  List<ProductVariant> get _variants {
+    return _productModel?.variants ?? [];
+  }
+
+  // Get selected variant (null if no variants)
+  ProductVariant? get _selectedVariant {
+    if (!_hasVariants) return null;
+    if (_selectedVariantIndex >= _variants.length) return _variants.first;
+    return _variants[_selectedVariantIndex];
+  }
+
+  // Get product data (works with both Product model and Map)
+  String get _productName {
+    if (_productModel != null) return _productModel!.name;
+    return widget.product?['name'] ?? 'Caffe Mocha';
+  }
+
+  String get _productDescription {
+    if (_productModel != null) return _productModel!.description ?? '';
+    return widget.product?['description'] ??
+        'A cappuccino is an approximately 150 ml (5 oz) beverage, with 25 ml of espresso coffee and 85ml of fresh milk';
+  }
+
+  String get _productType {
+    if (_productModel != null) return _productModel!.categoryName ?? 'Ice/Hot';
+    return widget.product?['type'] ?? 'Ice/Hot';
+  }
+
+  double get _productPrice {
+    // If product has variants, use selected variant price
+    if (_hasVariants && _selectedVariant != null) {
+      return _selectedVariant!.priceAsDouble;
+    }
+    if (_productModel != null) return _productModel!.priceAsDouble;
+    return (widget.product?['price'] ?? 4.53).toDouble();
+  }
+
+  double get _productRating {
+    return (widget.product?['rating'] ?? 4.8).toDouble();
+  }
+
+  int get _productReviews {
+    return widget.product?['reviews'] ?? 230;
+  }
+
+  String? get _productImage {
+    if (_productModel != null) {
+      return ApiConfig.getImageUrl(_productModel!.image);
+    }
+    return widget.product?['image'];
+  }
+
+  bool get _isNetworkImage {
+    final image = _productImage;
+    return image != null && (image.startsWith('http://') || image.startsWith('https://'));
+  }
 
   double get _totalPrice {
-    double base = _product['price'] ?? 4.53;
+    double base = _productPrice;
     double extrasTotal = 0;
     for (int index in _selectedExtras) {
       extrasTotal += _extras[index]['price'];
@@ -49,8 +118,111 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return base + extrasTotal;
   }
 
+  void _toggleWishlist() async {
+    debugPrint('🔵 [ProductDetail] _toggleWishlist called');
+    debugPrint('🔵 [ProductDetail] _productModel: $_productModel');
+    debugPrint('🔵 [ProductDetail] widget.product: ${widget.product}');
+
+    if (_productModel == null) {
+      debugPrint('🔴 [ProductDetail] _productModel is null! Cannot toggle wishlist.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error: Product data not available'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    debugPrint('🔵 [ProductDetail] Product ID: ${_productModel!.id}, Name: ${_productModel!.name}');
+
+    final wishlistProvider = context.read<WishlistProvider>();
+    final wasInWishlist = wishlistProvider.isInWishlist(_productModel!.id);
+
+    debugPrint('🔵 [ProductDetail] wasInWishlist: $wasInWishlist');
+
+    await wishlistProvider.toggleWishlist(_productModel!);
+
+    debugPrint('🟢 [ProductDetail] toggleWishlist completed');
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            wasInWishlist ? 'Removed from wishlist' : 'Added to wishlist',
+          ),
+          backgroundColor: AppColors.primary,
+          duration: const Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  void _addToCart() async {
+    debugPrint('🔵 [ProductDetail] _addToCart called');
+
+    if (_productModel == null) {
+      debugPrint('🔴 [ProductDetail] _productModel is null!');
+      return;
+    }
+
+    // Check if variant is required but not selected
+    if (_productModel!.hasVariants && _variants.isEmpty) {
+      debugPrint('🔴 [ProductDetail] Product requires variants but none available');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This product requires a size selection'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final cartProvider = context.read<CartProvider>();
+
+    debugPrint('🔵 [ProductDetail] Adding to cart: ${_productModel!.name}');
+    debugPrint('🔵 [ProductDetail] hasVariants: ${_productModel!.hasVariants}');
+    debugPrint('🔵 [ProductDetail] selectedVariant: ${_selectedVariant?.name} (id: ${_selectedVariant?.id})');
+
+    final success = await cartProvider.addToCart(
+      product: _productModel!,
+      variant: _selectedVariant,
+    );
+
+    if (success && mounted) {
+      setState(() {
+        _isAddedToCart = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$_productName added to cart!'),
+          backgroundColor: AppColors.success,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(cartProvider.errorMessage ?? 'Failed to add to cart'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Watch wishlist provider at build level to ensure rebuilds
+    final wishlistProvider = context.watch<WishlistProvider>();
+    final isInWishlist = _productModel != null
+        ? wishlistProvider.isInWishlist(_productModel!.id)
+        : false;
+
     return Scaffold(
       body: PatternBackground(
         child: SafeArea(
@@ -58,7 +230,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: Column(
             children: [
               // App Bar
-              _buildAppBar(),
+              _buildAppBar(isInWishlist: isInWishlist),
 
               // Scrollable Content
               Expanded(
@@ -96,7 +268,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar({required bool isInWishlist}) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppConstants.paddingL,
@@ -125,7 +297,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // Title
           Expanded(
             child: Text(
-              _product['name'] ?? 'Product',
+              _productName,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: 'Sora',
@@ -138,11 +310,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           // Favorites button
           GestureDetector(
-            onTap: () {
-              setState(() {
-                _isFavorite = !_isFavorite;
-              });
-            },
+            onTap: _productModel != null ? _toggleWishlist : null,
             child: Container(
               width: 40,
               height: 40,
@@ -151,8 +319,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                _isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: _isFavorite ? Colors.red : AppColors.textHeading,
+                isInWishlist ? Icons.favorite : Icons.favorite_border,
+                color: isInWishlist ? Colors.red : AppColors.textHeading,
                 size: 20,
               ),
             ),
@@ -173,9 +341,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          _product['image'] ?? 'assets/images/coffee_cup.png',
-          fit: BoxFit.cover,
+        child: _isNetworkImage
+            ? CachedNetworkImage(
+                imageUrl: _productImage!,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: AppColors.lightGrey,
+                  highlightColor: AppColors.white,
+                  child: Container(
+                    color: AppColors.lightGrey,
+                  ),
+                ),
+                errorWidget: (context, url, error) => _buildImagePlaceholder(),
+              )
+            : _productImage != null
+                ? Image.asset(
+                    _productImage!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildImagePlaceholder();
+                    },
+                  )
+                : _buildImagePlaceholder(),
+      ),
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      color: AppColors.background,
+      child: const Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 64,
+          color: AppColors.grey,
         ),
       ),
     );
@@ -195,7 +394,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _product['name'] ?? 'Caffe Mocha',
+                    _productName,
                     style: const TextStyle(
                       fontFamily: 'Sora',
                       fontSize: 22,
@@ -205,7 +404,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _product['type'] ?? 'Ice/Hot',
+                    _productType,
                     style: const TextStyle(
                       fontFamily: 'Sora',
                       fontSize: 14,
@@ -225,7 +424,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${_product['rating'] ?? 4.8}',
+                  '$_productRating',
                   style: const TextStyle(
                     fontFamily: 'Sora',
                     fontSize: 16,
@@ -234,7 +433,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
                 Text(
-                  ' (${_product['reviews'] ?? 230})',
+                  ' ($_productReviews)',
                   style: const TextStyle(
                     fontFamily: 'Sora',
                     fontSize: 14,
@@ -250,7 +449,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
         // Description
         Text(
-          _product['description'] ?? 'A cappuccino is an approximately 150 ml (5 oz) beverage, with 25 ml of espresso coffee and 85ml of fresh milk',
+          _productDescription,
           style: const TextStyle(
             fontFamily: 'Sora',
             fontSize: 14,
@@ -263,6 +462,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildSizeSelector() {
+    // Use actual variants if available, otherwise fallback sizes
+    final sizes = _hasVariants
+        ? _variants.map((v) => v.name).toList()
+        : _fallbackSizes;
+
+    // Don't show size selector if no sizes available
+    if (sizes.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -277,18 +484,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         const SizedBox(height: 12),
         Row(
-          children: List.generate(_sizes.length, (index) {
-            final isSelected = _selectedSizeIndex == index;
+          children: List.generate(sizes.length, (index) {
+            final isSelected = _selectedVariantIndex == index;
+            final variant = _hasVariants ? _variants[index] : null;
+            final sizeName = sizes[index];
+
             return Expanded(
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    _selectedSizeIndex = index;
+                    _selectedVariantIndex = index;
                   });
                 },
                 child: Container(
                   margin: EdgeInsets.only(
-                    right: index < _sizes.length - 1 ? 12 : 0,
+                    right: index < sizes.length - 1 ? 12 : 0,
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
@@ -299,16 +509,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       width: isSelected ? 2 : 1,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      _sizes[index],
-                      style: TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? AppColors.primary : AppColors.textHeading,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        sizeName,
+                        style: TextStyle(
+                          fontFamily: 'Sora',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? AppColors.primary : AppColors.textHeading,
+                        ),
                       ),
-                    ),
+                      if (variant != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '£${variant.priceAsDouble.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontFamily: 'Sora',
+                            fontSize: 12,
+                            color: isSelected ? AppColors.primary : AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
@@ -436,6 +660,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildBottomBar() {
+    final cartProvider = context.watch<CartProvider>();
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
@@ -489,16 +715,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 if (_isAddedToCart) {
                   Navigator.pushNamed(context, AppRoutes.cart);
                 } else {
-                  setState(() {
-                    _isAddedToCart = true;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${_product['name']} added to cart!'),
-                      backgroundColor: AppColors.primary,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                  _addToCart();
                 }
               },
               child: AnimatedContainer(
@@ -519,16 +736,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                      ],
-                      Text(
-                        _isAddedToCart ? 'View Cart' : 'Buy Now',
-                        style: const TextStyle(
-                          fontFamily: 'Sora',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.white,
+                        Text(
+                          'View Cart (${cartProvider.itemCount})',
+                          style: const TextStyle(
+                            fontFamily: 'Sora',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
                         ),
-                      ),
+                      ] else
+                        const Text(
+                          'Buy Now',
+                          style: TextStyle(
+                            fontFamily: 'Sora',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
+                        ),
                     ],
                   ),
                 ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/order_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
 
@@ -12,44 +15,45 @@ class PaymentMethodScreen extends StatefulWidget {
 }
 
 class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
-  int _selectedPaymentIndex = 2; // Default to Mastercard
-  int _selectedAddressIndex = 0;
+  int _selectedPaymentIndex = 4; // Default to Pay at Counter
+  bool _isLoading = false;
 
   final List<Map<String, dynamic>> _paymentMethods = [
     {
       'name': 'Google Pay',
       'icon': 'assets/icons/google_pay.png',
+      'value': 'online',
+      'enabled': false,
     },
     {
       'name': 'Paypal',
       'icon': 'assets/icons/paypal.png',
+      'value': 'online',
+      'enabled': false,
     },
     {
       'name': 'Mastercard',
       'icon': 'assets/icons/mastercard.png',
+      'value': 'online',
+      'enabled': false,
     },
     {
       'name': 'Apple Pay',
       'icon': 'assets/icons/apple_pay.png',
+      'value': 'online',
+      'enabled': false,
     },
     {
-      'name': 'Cash on Delivery',
+      'name': 'Pay at Counter',
       'icon': 'assets/icons/cash_on_delivery.png',
+      'value': 'pay_at_counter',
+      'enabled': true,
     },
   ];
 
-  final List<Map<String, dynamic>> _addresses = [
-    {
-      'name': 'Oliver James Carter',
-      'address': '24 Willow, Crescent, Croydon, London, CR0 6JP, United Kingdom.',
-      'icon': Icons.business,
-    },
-    {
-      'name': 'Amelia Rose Thompson',
-      'address': 'Flat 3B, 18 Kingfisher Court, Birmingham, West Midlands, B15 2SQ',
-      'icon': Icons.home,
-    },
-  ];
+  // Only pickup is available for now
+  String get _orderType => 'pickup';
+
 
   @override
   Widget build(BuildContext context) {
@@ -78,13 +82,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         _buildSectionTitle('Payment'),
                         const SizedBox(height: 12),
                         _buildPaymentMethods(),
-
-                        const SizedBox(height: 24),
-
-                        // Address Section
-                        _buildAddressSectionHeader(),
-                        const SizedBox(height: 12),
-                        _buildAddresses(),
 
                         const SizedBox(height: 120),
                       ],
@@ -159,188 +156,104 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     );
   }
 
-  Widget _buildAddressSectionHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Address',
-          style: TextStyle(
-            fontFamily: 'Sora',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textHeading,
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.myAddress);
-          },
-          child: const Text(
-            'Manage',
-            style: TextStyle(
-              fontFamily: 'Sora',
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPaymentMethods() {
     return Column(
       children: List.generate(_paymentMethods.length, (index) {
         final method = _paymentMethods[index];
         final isSelected = _selectedPaymentIndex == index;
+        final isEnabled = method['enabled'] as bool? ?? true;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedPaymentIndex = index;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.border,
-                  width: isSelected ? 2 : 1,
+            onTap: isEnabled
+                ? () {
+                    setState(() {
+                      _selectedPaymentIndex = index;
+                    });
+                  }
+                : null,
+            child: Opacity(
+              opacity: isEnabled ? 1.0 : 0.5,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected && isEnabled
+                        ? AppColors.primary
+                        : AppColors.border,
+                    width: isSelected && isEnabled ? 2 : 1,
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  // Icon
-                  Image.asset(
-                    method['icon'],
-                    width: 32,
-                    height: 32,
-                  ),
-                  const SizedBox(width: 16),
-
-                  // Name
-                  Expanded(
-                    child: Text(
-                      method['name'],
-                      style: const TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textHeading,
-                      ),
+                child: Row(
+                  children: [
+                    // Icon
+                    Image.asset(
+                      method['icon'],
+                      width: 32,
+                      height: 32,
                     ),
-                  ),
+                    const SizedBox(width: 16),
 
-                  // Radio button
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.grey,
-                        width: 2,
-                      ),
-                    ),
-                    child: isSelected
-                        ? Center(
-                            child: Container(
-                              width: 12,
-                              height: 12,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.primary,
+                    // Name
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            method['name'],
+                            style: TextStyle(
+                              fontFamily: 'Sora',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: isEnabled
+                                  ? AppColors.textHeading
+                                  : AppColors.grey,
+                            ),
+                          ),
+                          if (!isEnabled)
+                            const Text(
+                              'Coming soon',
+                              style: TextStyle(
+                                fontFamily: 'Sora',
+                                fontSize: 12,
+                                color: AppColors.grey,
                               ),
                             ),
-                          )
-                        : null,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
+                        ],
+                      ),
+                    ),
 
-  Widget _buildAddresses() {
-    return Column(
-      children: List.generate(_addresses.length, (index) {
-        final address = _addresses[index];
-        final isSelected = _selectedAddressIndex == index;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedAddressIndex = index;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.border,
-                  width: isSelected ? 2 : 1,
+                    // Radio button
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected && isEnabled
+                              ? AppColors.primary
+                              : AppColors.grey,
+                          width: 2,
+                        ),
+                      ),
+                      child: isSelected && isEnabled
+                          ? Center(
+                              child: Container(
+                                width: 12,
+                                height: 12,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ],
                 ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Icon
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBackground,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      address['icon'],
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Address details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          address['name'],
-                          style: const TextStyle(
-                            fontFamily: 'Sora',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textHeading,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          address['address'],
-                          style: const TextStyle(
-                            fontFamily: 'Sora',
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
@@ -350,6 +263,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   }
 
   Widget _buildBottomBar() {
+    final cartProvider = context.watch<CartProvider>();
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
@@ -366,40 +281,134 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
           ),
         ],
       ),
-      child: GestureDetector(
-        onTap: () {
-          // Process payment
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Payment processed with ${_paymentMethods[_selectedPaymentIndex]['name']}',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Order Summary
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total',
+                style: TextStyle(
+                  fontFamily: 'Sora',
+                  fontSize: 16,
+                  color: AppColors.textPrimary,
+                ),
               ),
-              backgroundColor: AppColors.primary,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          // Navigate back or to order confirmation
-          Navigator.pop(context, true);
-        },
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(16),
+              Text(
+                '${cartProvider.currencySymbol}${cartProvider.total.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontFamily: 'Sora',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
           ),
-          child: const Center(
-            child: Text(
-              'Pay Now',
-              style: TextStyle(
-                fontFamily: 'Sora',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.white,
+          const SizedBox(height: 16),
+
+          // Pay Button
+          GestureDetector(
+            onTap: _isLoading ? null : _handleCheckout,
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: _isLoading ? AppColors.grey : AppColors.primary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppColors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Place Order',
+                        style: TextStyle(
+                          fontFamily: 'Sora',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white,
+                        ),
+                      ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
+  }
+
+  Future<void> _handleCheckout() async {
+    final orderProvider = context.read<OrderProvider>();
+    final cartProvider = context.read<CartProvider>();
+
+    // Check if cart is empty
+    if (cartProvider.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your cart is empty'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Get selected payment method
+    final paymentMethod =
+        _paymentMethods[_selectedPaymentIndex]['value'] as String;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await orderProvider.checkout(
+        orderType: _orderType,
+        paymentMethod: paymentMethod,
+      );
+
+      if (result != null) {
+        // Clear cart after successful checkout
+        await cartProvider.loadCart(forceRefresh: true);
+
+        if (mounted) {
+          // Navigate to order success screen
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.orderSuccess,
+            (route) => route.settings.name == AppRoutes.home,
+            arguments: {
+              'orderId': result.order.orderNumber,
+              'order': result.order,
+              'payment': result.payment,
+            },
+          );
+        }
+      } else {
+        // Show error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(orderProvider.errorMessage ?? 'Failed to place order'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 }

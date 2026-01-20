@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permissions for network access (required for API calls and image caching) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Permission for vibration (used for order status notifications) -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <application
         android:label="mc_cafe_app"
         android:name="${applicationName}"

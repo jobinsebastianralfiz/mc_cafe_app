@@ -1,0 +1,4795 @@
+{
+	"info": {
+		"_postman_id": "a919c73d-53d5-480e-a052-80694456f4cd",
+		"name": "MaiCafe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "734303"
+	},
+	"item": [
+		{
+			"name": "Cart Api",
+			"item": []
+		},
+		{
+			"name": "Order Api",
+			"item": []
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hafees Rahman\",\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\",\n    \"password_confirmation\": \"12345678\",\n    \"phone\": \"1234567890\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Hafees Rahman\",\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\",\n    \"password_confirmation\": \"12345678\",\n    \"phone\": \"1234567890\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:44:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Registration successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 3,\n            \"name\": \"Hafees Rahman\",\n            \"email\": \"hafees500@gmail.com\",\n            \"phone\": \"1234567890\",\n            \"role\": \"customer\",\n            \"loyalty_points\": null,\n            \"loyalty_tier\": null\n        },\n        \"token\": \"3|7g0dKkkTAbevPIPLKqMTpVqzJR8SvCHUsmQ66JQn\",\n        \"token_type\": \"Bearer\"\n    }\n}"
+						},
+						{
+							"name": "Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:44:57 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"errors\": {\n        \"name\": [\n            \"The name field is required.\"\n        ],\n        \"email\": [\n            \"The email field is required.\"\n        ],\n        \"password\": [\n            \"The password field is required.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:47:11 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 3,\n            \"name\": \"Hafees Rahman\",\n            \"email\": \"hafees500@gmail.com\",\n            \"phone\": \"1234567890\",\n            \"role\": \"customer\",\n            \"address\": null,\n            \"loyalty_points\": 0,\n            \"loyalty_tier\": \"silver\",\n            \"avatar\": null\n        },\n        \"token\": \"4|IP6avM26C2ErjZHh2L1QYUmmsFewBmPXoLuSDmRJ\",\n        \"token_type\": \"Bearer\"\n    }\n}"
+						},
+						{
+							"name": "Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"1234567\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:48:12 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Invalid credentials\",\n    \"errors\": {\n        \"email\": [\n            \"The provided credentials are incorrect.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hafees500@gmail.com\",\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"hafees500@gmail.com\",\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/forgot-password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"forgot-password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:49:11 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"If your email exists in our system, you will receive a password reset link shortly.\",\n    \"debug\": {\n        \"reset_token\": \"7Rh4jmCQhqQ0IUN80YmXbEopiY4rfHoauONf6VoTXsVcIidEmCnPYvgA0qMr\"\n    }\n}"
+						},
+						{
+							"name": "Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"hafees500@gmail.co\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/forgot-password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"forgot-password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:51:18 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"If your email exists in our system, you will receive a password reset link shortly.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\":\"hafees500@gmail.com\",\n    \"token\": \"7Rh4jmCQhqQ0IUN80YmXbEopiY4rfHoauONf6VoTXsVcIidEmCnPYvgA0qMr\",\n    \"password\":\"12345678\",\n    \"password_confirmation\":\"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\":\"hafees500@gmail.com\",\n    \"token\": \"7Rh4jmCQhqQ0IUN80YmXbEopiY4rfHoauONf6VoTXsVcIidEmCnPYvgA0qMr\",\n    \"password\":\"12345678\",\n    \"password_confirmation\":\"12345678\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/reset-password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"reset-password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:54:25 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Password has been reset successfully. Please login with your new password.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hafees Rahman\",\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\",\n    \"password_confirmation\": \"12345678\",\n    \"phone\": \"1234567890\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						},
+						"description": "Get User Profile After Login"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Hafees Rahman\",\n    \"email\": \"hafees500@gmail.com\",\n    \"password\": \"12345678\",\n    \"password_confirmation\": \"12345678\",\n    \"phone\": \"1234567890\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/profile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 14:56:32 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"user\": {\n            \"id\": 3,\n            \"name\": \"Hafees Rahman\",\n            \"email\": \"hafees500@gmail.com\",\n            \"phone\": \"1234567890\",\n            \"role\": \"customer\",\n            \"address\": null,\n            \"loyalty_points\": 0,\n            \"loyalty_tier\": \"silver\",\n            \"avatar\": null,\n            \"created_at\": \"2026-01-17T14:44:16.000000Z\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hafees\",\n    \"phone\": \"+1234567890\",\n    \"address\": \"123 Main Street, City, Country\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Hafees\",\n    \"phone\": \"+1234567890\",\n    \"address\": \"123 Main Street, City, Country\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/profile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 18:34:12 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Profile updated successfully\",\n    \"data\": {\n        \"user\": {\n            \"id\": 3,\n            \"name\": \"Hafees\",\n            \"email\": \"hafees500@gmail.com\",\n            \"phone\": \"+1234567890\",\n            \"role\": \"customer\",\n            \"address\": \"123 Main Street, City, Country\",\n            \"loyalty_points\": 0,\n            \"loyalty_tier\": \"silver\",\n            \"avatar\": null\n        }\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Products & Categories",
+			"item": [
+				{
+					"name": "List All Categories",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/categories",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 18:41:55 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"categories\": [\n            {\n                \"id\": 2,\n                \"name\": \"BREAKFAST\",\n                \"slug\": \"breakfast\",\n                \"image\": \"categories/cBP9uAcQGP4MqylWR4y5tchieVqQMGLFugPdyIYi.png\",\n                \"sort_order\": 0\n            },\n            {\n                \"id\": 3,\n                \"name\": \"COFFEES\",\n                \"slug\": \"coffees\",\n                \"image\": \"categories/ruzuTlmC4CamSgEMkENiejb3Ftpgq0vVmNLBbhdD.png\",\n                \"sort_order\": 0\n            },\n            {\n                \"id\": 5,\n                \"name\": \"JUICE\",\n                \"slug\": \"juice\",\n                \"image\": \"categories/A91k4BAw7uU3yuRgXRPOzdx9umspSIj4NuilniWV.png\",\n                \"sort_order\": 0\n            },\n            {\n                \"id\": 4,\n                \"name\": \"NON-COFFEES\",\n                \"slug\": \"non-coffees\",\n                \"image\": \"categories/h3rJglXans0oewqePc7aTzWLFcDEaHKDu3OpJQ1s.png\",\n                \"sort_order\": 0\n            },\n            {\n                \"id\": 1,\n                \"name\": \"SANDWICHES\",\n                \"slug\": \"sandwiches\",\n                \"image\": \"categories/Imr3LQaG4TCp0uGmIvQx8F87KkH4KHFtR7DVMiL3.png\",\n                \"sort_order\": 0\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories/breakfast",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"categories",
+								"breakfast"
+							]
+						},
+						"description": "Parameter is slug"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/categories/sandwiches",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"categories",
+										"sandwiches"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 18:42:17 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"category\": {\n            \"id\": 1,\n            \"name\": \"SANDWICHES\",\n            \"slug\": \"sandwiches\",\n            \"image\": \"categories/Imr3LQaG4TCp0uGmIvQx8F87KkH4KHFtR7DVMiL3.png\"\n        },\n        \"products\": [\n            {\n                \"id\": 1,\n                \"category_id\": 1,\n                \"name\": \"Bacon Burger\",\n                \"slug\": \"bacon-burger\",\n                \"description\": \"Bacon Burger\",\n                \"short_description\": null,\n                \"price\": \"15.00\",\n                \"compare_price\": \"12.00\",\n                \"image\": \"products/yVYoM0vH2Nr6jik3O0zmo9J7XvwijUxwzOlD6LGP.png\",\n                \"gallery\": null,\n                \"is_featured\": true,\n                \"is_active\": true,\n                \"stock_quantity\": 5,\n                \"sku\": null,\n                \"customization_options\": null,\n                \"sort_order\": 0,\n                \"created_at\": \"2025-12-17T11:12:32.000000Z\",\n                \"updated_at\": \"2025-12-17T11:46:51.000000Z\"\n            },\n            {\n                \"id\": 2,\n                \"category_id\": 1,\n                \"name\": \"BBQ Chicken Breast\",\n                \"slug\": \"bbq-chicken-breast\",\n                \"description\": \"BBQ Chicken Breast\",\n                \"short_description\": null,\n                \"price\": \"20.00\",\n                \"compare_price\": \"15.00\",\n                \"image\": \"products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"gallery\": null,\n                \"is_featured\": true,\n                \"is_active\": true,\n                \"stock_quantity\": 10,\n                \"sku\": null,\n                \"customization_options\": null,\n                \"sort_order\": 0,\n                \"created_at\": \"2025-12-17T11:16:32.000000Z\",\n                \"updated_at\": \"2025-12-17T11:46:44.000000Z\"\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 15,\n            \"total\": 2\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products?category=sandwiches",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "sandwiches"
+								}
+							]
+						},
+						"description": "Query Parameters\n\n| Parameter | Type | Description |\n| --- | --- | --- |\n| search | string | Search in product name and description |\n| category_id | int | Filter by category ID |\n| category | string | Filter by category slug |\n| featured | boolean | Filter featured products (true/false) |\n| min_price | float | Minimum price filter |\n| max_price | float | Maximum price filter |\n| has_variants | boolean | Filter products with/without variants |\n| in_stock | boolean | Show only products in stock |\n| sort | string | Sort order (see options below) |\n| per_page | int | Items per page (1-100, default: 15) |\n| page | int | Page number |\n\nSort Options\n\n| Value | Description |\n| --- | --- |\n| name or name_asc | Name A-Z |\n| name_desc | Name Z-A |\n| price_asc | Price low to high |\n| price_desc | Price high to low |\n| newest | Newest first |\n| oldest | Oldest first |\n| popular | Featured products first |\n\nExample Requests\n\n```\n 1 │# Search for coffee products\n 2 │GET /api/products?search=coffee\n 3 │\n 4 │# Filter by category\n 5 │GET /api/products?category=beverages\n 6 │GET /api/products?category_id=1\n 7 │\n 8 │# Price range\n 9 │GET /api/products?min_price=2&max_price=10\n10 │\n11 │# Featured products sorted by price\n12 │GET /api/products?featured=true&sort=price_asc\n13 │\n14 │# Products in stock with variants\n15 │GET /api/products?in_stock=true&has_variants=true\n16 │\n17 │# Pagination\n18 │GET /api/products?page=2&per_page=20\n19 │\n20 │# Combined filters\n21 │GET /api/products?category=coffee&min_price=3&max_price=8&sort=price_asc&per_page=10\n\n ```\n\nResponse Format\n\n```\n 1 │{\n 2 │  \"success\": true,\n 3 │  \"data\": {\n 4 │    \"products\": [...],\n 5 │    \"pagination\": {\n 6 │      \"current_page\": 1,\n 7 │      \"last_page\": 5,\n 8 │      \"per_page\": 15,\n 9 │      \"total\": 72,\n10 │      \"from\": 1,\n11 │      \"to\": 15,\n12 │      \"has_more_pages\": true\n13 │    },\n14 │    \"filters\": {\n15 │      \"search\": \"coffee\",\n16 │      \"category\": \"beverages\",\n17 │      \"sort\": \"price_asc\"\n18 │    }\n19 │  }\n20 │}\n\n ```"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 18:50:52 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=99"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"products\": [\n            {\n                \"id\": 1,\n                \"name\": \"Bacon Burger\",\n                \"slug\": \"bacon-burger\",\n                \"description\": \"Bacon Burger\",\n                \"image\": \"products/yVYoM0vH2Nr6jik3O0zmo9J7XvwijUxwzOlD6LGP.png\",\n                \"is_featured\": true,\n                \"has_variants\": false,\n                \"category\": {\n                    \"id\": 1,\n                    \"name\": \"SANDWICHES\",\n                    \"slug\": \"sandwiches\"\n                },\n                \"price\": \"15.00\",\n                \"compare_price\": \"12.00\",\n                \"stock_quantity\": 5,\n                \"sku\": null,\n                \"variants\": []\n            },\n            {\n                \"id\": 2,\n                \"name\": \"BBQ Chicken Breast\",\n                \"slug\": \"bbq-chicken-breast\",\n                \"description\": \"BBQ Chicken Breast\",\n                \"image\": \"products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"is_featured\": true,\n                \"has_variants\": false,\n                \"category\": {\n                    \"id\": 1,\n                    \"name\": \"SANDWICHES\",\n                    \"slug\": \"sandwiches\"\n                },\n                \"price\": \"20.00\",\n                \"compare_price\": \"15.00\",\n                \"stock_quantity\": 10,\n                \"sku\": null,\n                \"variants\": []\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 15,\n            \"total\": 2\n        }\n    }\n}"
+						},
+						{
+							"name": "Product WIth Variants",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 19:00:22 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"products\": [\n            {\n                \"id\": 1,\n                \"name\": \"Bacon Burger\",\n                \"slug\": \"bacon-burger\",\n                \"description\": \"Bacon Burger\",\n                \"image\": \"products/yVYoM0vH2Nr6jik3O0zmo9J7XvwijUxwzOlD6LGP.png\",\n                \"is_featured\": true,\n                \"has_variants\": true,\n                \"category\": {\n                    \"id\": 1,\n                    \"name\": \"SANDWICHES\",\n                    \"slug\": \"sandwiches\"\n                },\n                \"price\": null,\n                \"compare_price\": null,\n                \"min_price\": \"15.00\",\n                \"max_price\": \"25.00\",\n                \"price_range\": \"15.00 - 25.00\",\n                \"variants\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Small\",\n                        \"sku\": null,\n                        \"price\": \"15.00\",\n                        \"compare_price\": \"12.00\",\n                        \"stock_quantity\": 10\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"Medium\",\n                        \"sku\": null,\n                        \"price\": \"20.00\",\n                        \"compare_price\": \"18.00\",\n                        \"stock_quantity\": 10\n                    },\n                    {\n                        \"id\": 3,\n                        \"name\": \"Large\",\n                        \"sku\": null,\n                        \"price\": \"25.00\",\n                        \"compare_price\": \"22.00\",\n                        \"stock_quantity\": 10\n                    }\n                ]\n            },\n            {\n                \"id\": 2,\n                \"name\": \"BBQ Chicken Breast\",\n                \"slug\": \"bbq-chicken-breast\",\n                \"description\": \"BBQ Chicken Breast\",\n                \"image\": \"products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"is_featured\": true,\n                \"has_variants\": false,\n                \"category\": {\n                    \"id\": 1,\n                    \"name\": \"SANDWICHES\",\n                    \"slug\": \"sandwiches\"\n                },\n                \"price\": \"20.00\",\n                \"compare_price\": \"15.00\",\n                \"stock_quantity\": 10,\n                \"sku\": null,\n                \"variants\": []\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 15,\n            \"total\": 2\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/bacon-burger",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"bacon-burger"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Product",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/bacon-burger",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										"bacon-burger"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 18:52:13 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"Bacon Burger\",\n            \"slug\": \"bacon-burger\",\n            \"description\": \"Bacon Burger\",\n            \"image\": \"products/yVYoM0vH2Nr6jik3O0zmo9J7XvwijUxwzOlD6LGP.png\",\n            \"is_featured\": true,\n            \"has_variants\": false,\n            \"category\": {\n                \"id\": 1,\n                \"name\": \"SANDWICHES\",\n                \"slug\": \"sandwiches\"\n            },\n            \"gallery\": null,\n            \"customization_options\": null,\n            \"price\": \"15.00\",\n            \"compare_price\": \"12.00\",\n            \"stock_quantity\": 5,\n            \"sku\": null,\n            \"variants\": []\n        }\n    }\n}"
+						},
+						{
+							"name": "Product With variants",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/bacon-burger",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										"bacon-burger"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 19:01:25 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"Bacon Burger\",\n            \"slug\": \"bacon-burger\",\n            \"description\": \"Bacon Burger\",\n            \"image\": \"products/yVYoM0vH2Nr6jik3O0zmo9J7XvwijUxwzOlD6LGP.png\",\n            \"is_featured\": true,\n            \"has_variants\": true,\n            \"category\": {\n                \"id\": 1,\n                \"name\": \"SANDWICHES\",\n                \"slug\": \"sandwiches\"\n            },\n            \"gallery\": null,\n            \"customization_options\": null,\n            \"price\": null,\n            \"compare_price\": null,\n            \"min_price\": \"15.00\",\n            \"max_price\": \"25.00\",\n            \"price_range\": \"15.00 - 25.00\",\n            \"variants\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"Small\",\n                    \"sku\": null,\n                    \"price\": \"15.00\",\n                    \"compare_price\": \"12.00\",\n                    \"stock_quantity\": 10\n                },\n                {\n                    \"id\": 2,\n                    \"name\": \"Medium\",\n                    \"sku\": null,\n                    \"price\": \"20.00\",\n                    \"compare_price\": \"18.00\",\n                    \"stock_quantity\": 10\n                },\n                {\n                    \"id\": 3,\n                    \"name\": \"Large\",\n                    \"sku\": null,\n                    \"price\": \"25.00\",\n                    \"compare_price\": \"22.00\",\n                    \"stock_quantity\": 10\n                }\n            ]\n        }\n    }\n}"
+						},
+						{
+							"name": "Products With Addons",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/products/bbq-chicken-breast",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"products",
+										"bbq-chicken-breast"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 19:19:15 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=99"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"product\": {\n            \"id\": 2,\n            \"name\": \"BBQ Chicken Breast\",\n            \"slug\": \"bbq-chicken-breast\",\n            \"description\": \"BBQ Chicken Breast\",\n            \"image\": \"products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n            \"is_featured\": true,\n            \"has_variants\": false,\n            \"category\": {\n                \"id\": 1,\n                \"name\": \"SANDWICHES\",\n                \"slug\": \"sandwiches\"\n            },\n            \"gallery\": null,\n            \"customization_options\": null,\n            \"addon_groups\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"Extra Toppings\",\n                    \"description\": \"Choose you additional preferred toppings\",\n                    \"selection_type\": \"multiple\",\n                    \"is_required\": false,\n                    \"min_selections\": 0,\n                    \"max_selections\": null,\n                    \"addons\": [\n                        {\n                            \"id\": 1,\n                            \"name\": \"Extra Shot\",\n                            \"price\": \"4.53\"\n                        },\n                        {\n                            \"id\": 2,\n                            \"name\": \"Almond Milk\",\n                            \"price\": \"3.25\"\n                        },\n                        {\n                            \"id\": 3,\n                            \"name\": \"Caramel\",\n                            \"price\": \"2.00\"\n                        },\n                        {\n                            \"id\": 4,\n                            \"name\": \"Vanilla\",\n                            \"price\": \"5.00\"\n                        },\n                        {\n                            \"id\": 5,\n                            \"name\": \"Hazelnut\",\n                            \"price\": \"4.00\"\n                        }\n                    ]\n                }\n            ],\n            \"price\": \"20.00\",\n            \"compare_price\": \"15.00\",\n            \"stock_quantity\": 10,\n            \"sku\": null,\n            \"variants\": []\n        }\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Banners",
+			"item": [
+				{
+					"name": "List all active banners",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/banners",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"banners"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List all active banners",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/banners",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"banners"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 19:22:28 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"banners\": [\n            {\n                \"id\": 2,\n                \"title\": \"Download Mai Cafe App Now\",\n                \"subtitle\": null,\n                \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/banners/V5mjHiGtvz386O6Vucg9uqdQOcr17sd8Nsh9rfUK.jpg\",\n                \"button_text\": null,\n                \"button_link\": null\n            },\n            {\n                \"id\": 1,\n                \"title\": \"Quality Ingredients.., Enjoy your Sandwicth\",\n                \"subtitle\": null,\n                \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/banners/wKlY0IlXJ0YUM5XBb8Gi3T4tbbM1PnQPxVj9bI2t.jpg\",\n                \"button_text\": null,\n                \"button_link\": null\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get single banner",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/banners/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"banners",
+								"2"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get single banner",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/banners/2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"banners",
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sat, 17 Jan 2026 19:23:06 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"banner\": {\n            \"id\": 2,\n            \"title\": \"Download Mai Cafe App Now\",\n            \"subtitle\": null,\n            \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/banners/V5mjHiGtvz386O6Vucg9uqdQOcr17sd8Nsh9rfUK.jpg\",\n            \"button_text\": null,\n            \"button_link\": null\n        }\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Wishlist",
+			"item": [
+				{
+					"name": "Add Product to Wishlist",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"product_id\": 1}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wishlist",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Add Product to Wishlist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"product_id\": 1}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wishlist",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:43:08 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Product is already in your wishlist\",\n    \"data\": {\n        \"wishlist_item\": {\n            \"id\": 4,\n            \"added_at\": \"2026-01-18T06:42:45+00:00\",\n            \"product\": {\n                \"id\": 1,\n                \"name\": \"Bacon Burger\",\n                \"slug\": \"bacon-burger\",\n                \"description\": \"Bacon Burger\",\n                \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                \"is_featured\": true,\n                \"has_variants\": true,\n                \"category\": {\n                    \"id\": 1,\n                    \"name\": \"SANDWICHES\",\n                    \"slug\": \"sandwiches\"\n                },\n                \"price\": null,\n                \"min_price\": \"15.00\",\n                \"max_price\": \"25.00\",\n                \"price_range\": \"£15.00 - £25.00\"\n            }\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Multiple Products at Once",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"product_ids\": [1, 2, 3]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"check"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Check Multiple Products at Once",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"product_ids\": [1, 2, 3]}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/check",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"check"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:45:20 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"wishlist_status\": {\n            \"1\": true,\n            \"2\": false,\n            \"3\": false\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Wishlist Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"count"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Wishlist Count",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/count",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"count"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:44:38 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"count\": 1\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Check if Product is in Wishlist",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/check/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"check",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Check if Product is in Wishlist",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/check/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"check",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:45:02 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"product_id\": 1,\n        \"is_in_wishlist\": true\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User's Wishlist (Paginated)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlist?per_page=10&page=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get User's Wishlist (Paginated)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlist?per_page=10&page=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "10"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:45:40 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=98"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"wishlist\": [\n            {\n                \"id\": 4,\n                \"added_at\": \"2026-01-18T06:42:45+00:00\",\n                \"product\": {\n                    \"id\": 1,\n                    \"name\": \"Bacon Burger\",\n                    \"slug\": \"bacon-burger\",\n                    \"description\": \"Bacon Burger\",\n                    \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                    \"is_featured\": true,\n                    \"has_variants\": true,\n                    \"category\": {\n                        \"id\": 1,\n                        \"name\": \"SANDWICHES\",\n                        \"slug\": \"sandwiches\"\n                    },\n                    \"price\": null,\n                    \"min_price\": \"15.00\",\n                    \"max_price\": \"25.00\",\n                    \"price_range\": \"£15.00 - £25.00\"\n                }\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 10,\n            \"total\": 1,\n            \"has_more_pages\": false\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Toggle Product in Wishlist (Add/Remove)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"product_id\": 2}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/toggle",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"toggle"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Toggle Product in Wishlist (Add/Remove)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"product_id\": 2}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/toggle",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"toggle"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:45:56 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Product added to wishlist\",\n    \"data\": {\n        \"is_in_wishlist\": true,\n        \"product_id\": 2,\n        \"wishlist_item\": {\n            \"id\": 5,\n            \"added_at\": \"2026-01-18T06:45:56+00:00\",\n            \"product\": {\n                \"id\": 2,\n                \"name\": \"BBQ Chicken Breast\",\n                \"slug\": \"bbq-chicken-breast\",\n                \"description\": \"BBQ Chicken Breast\",\n                \"image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"is_featured\": true,\n                \"has_variants\": false,\n                \"category\": {\n                    \"id\": 2,\n                    \"name\": \"BREAKFAST\",\n                    \"slug\": \"breakfast\"\n                },\n                \"price\": \"20.00\",\n                \"compare_price\": \"15.00\"\n            }\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove Product from Wishlist",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Remove Product from Wishlist",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:46:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Product removed from wishlist\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Clear Entire Wishlist",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "5|zfATCTfWyUbJegeXOIASUl65L5oNLipnwi236zRS",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wishlist/clear",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wishlist",
+								"clear"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Clear Entire Wishlist",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 6|tGcVKV7SATaQKu2xsmG00D8FDGNEGQ8u6DsAZxo3",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/wishlist/clear",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wishlist",
+										"clear"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 06:46:33 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "56"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Wishlist cleared\",\n    \"data\": {\n        \"items_removed\": 1\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Cart",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/cart",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 07:01:52 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "56"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 1,\n        \"store_id\": null,\n        \"store\": null,\n        \"items\": [\n            {\n                \"id\": 1,\n                \"product_id\": 1,\n                \"product_name\": \"Bacon Burger\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                \"variant_id\": 1,\n                \"variant_name\": \"Small\",\n                \"unit_price\": 15,\n                \"quantity\": 4,\n                \"addons\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Extra Shot\",\n                        \"price\": 4.53\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"Almond Milk\",\n                        \"price\": 3.25\n                    }\n                ],\n                \"addons_total\": 7.78,\n                \"item_total\": 91.12,\n                \"special_instructions\": \"Extra crispy please\"\n            }\n        ],\n        \"items_count\": 4,\n        \"coupon_code\": null,\n        \"notes\": null,\n        \"summary\": {\n            \"subtotal\": 91.12,\n            \"tax_rate\": 5,\n            \"tax\": 4.556,\n            \"discount\": 0,\n            \"grand_total\": 95.676\n        },\n        \"currency\": {\n            \"symbol\": \"£\",\n            \"code\": \"GBP\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Add Item to Cart (with variant and addons)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_id\": 1,\n    \"variant_id\": 1,\n    \"quantity\": 2,\n    \"addons\": [\n        {\n            \"id\": 1,\n            \"quantity\": 1\n        },\n        {\n            \"id\": 2,\n            \"quantity\": 1\n        }\n    ],\n    \"special_instructions\": \"Extra crispy please\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Add Item to Cart (with variant and addons)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"product_id\": 1,\n    \"variant_id\": 1,\n    \"quantity\": 2,\n    \"addons\": [\n        {\n            \"id\": 1,\n            \"quantity\": 1\n        },\n        {\n            \"id\": 2,\n            \"quantity\": 1\n        }\n    ],\n    \"special_instructions\": \"Extra crispy please\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/cart/items",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 07:01:44 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "57"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Cart updated - quantity increased\",\n    \"data\": {\n        \"id\": 1,\n        \"store_id\": null,\n        \"store\": null,\n        \"items\": [\n            {\n                \"id\": 1,\n                \"product_id\": 1,\n                \"product_name\": \"Bacon Burger\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                \"variant_id\": 1,\n                \"variant_name\": \"Small\",\n                \"unit_price\": 15,\n                \"quantity\": 4,\n                \"addons\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Extra Shot\",\n                        \"price\": 4.53\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"Almond Milk\",\n                        \"price\": 3.25\n                    }\n                ],\n                \"addons_total\": 7.78,\n                \"item_total\": 91.12,\n                \"special_instructions\": \"Extra crispy please\"\n            }\n        ],\n        \"items_count\": 4,\n        \"coupon_code\": null,\n        \"notes\": null,\n        \"summary\": {\n            \"subtotal\": 91.12,\n            \"tax_rate\": 5,\n            \"tax\": 4.556,\n            \"discount\": 0,\n            \"grand_total\": 95.676\n        },\n        \"currency\": {\n            \"symbol\": \"£\",\n            \"code\": \"GBP\"\n        }\n    }\n}"
+						},
+						{
+							"name": "Add Item (simple - no variant/addons)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"product_id\": 2,\n\"quantity\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/cart/items",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart",
+										"items"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 07:02:53 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Item added to cart\",\n    \"data\": {\n        \"id\": 1,\n        \"store_id\": null,\n        \"store\": null,\n        \"items\": [\n            {\n                \"id\": 1,\n                \"product_id\": 1,\n                \"product_name\": \"Bacon Burger\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                \"variant_id\": 1,\n                \"variant_name\": \"Small\",\n                \"unit_price\": 15,\n                \"quantity\": 4,\n                \"addons\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Extra Shot\",\n                        \"price\": 4.53\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"Almond Milk\",\n                        \"price\": 3.25\n                    }\n                ],\n                \"addons_total\": 7.78,\n                \"item_total\": 91.12,\n                \"special_instructions\": \"Extra crispy please\"\n            },\n            {\n                \"id\": 2,\n                \"product_id\": 2,\n                \"product_name\": \"BBQ Chicken Breast\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"variant_id\": null,\n                \"variant_name\": null,\n                \"unit_price\": 20,\n                \"quantity\": 1,\n                \"addons\": [],\n                \"addons_total\": 0,\n                \"item_total\": 20,\n                \"special_instructions\": null\n            }\n        ],\n        \"items_count\": 5,\n        \"coupon_code\": null,\n        \"notes\": null,\n        \"summary\": {\n            \"subtotal\": 111.12,\n            \"tax_rate\": 5,\n            \"tax\": 5.556000000000001,\n            \"discount\": 0,\n            \"grand_total\": 116.676\n        },\n        \"currency\": {\n            \"symbol\": \"£\",\n            \"code\": \"GBP\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Cart Item Quantity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"quantity\": 3}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart/items/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Cart Item Quantity",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"quantity\": 3}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/cart/items/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart",
+										"items",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 07:04:04 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Cart item updated\",\n    \"data\": {\n        \"id\": 1,\n        \"store_id\": null,\n        \"store\": null,\n        \"items\": [\n            {\n                \"id\": 1,\n                \"product_id\": 1,\n                \"product_name\": \"Bacon Burger\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/bacon-burger-4a0812.jpg\",\n                \"variant_id\": 1,\n                \"variant_name\": \"Small\",\n                \"unit_price\": 15,\n                \"quantity\": 3,\n                \"addons\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Extra Shot\",\n                        \"price\": 4.53\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"Almond Milk\",\n                        \"price\": 3.25\n                    }\n                ],\n                \"addons_total\": 7.78,\n                \"item_total\": 68.34,\n                \"special_instructions\": \"Extra crispy please\"\n            },\n            {\n                \"id\": 2,\n                \"product_id\": 2,\n                \"product_name\": \"BBQ Chicken Breast\",\n                \"product_image\": \"http://localhost/maicafe-app/maicafe-app/public/storage/products/XX3drKbozPRLfaQbBe8nCSY2lsODsCkJdspL2z1c.png\",\n                \"variant_id\": null,\n                \"variant_name\": null,\n                \"unit_price\": 20,\n                \"quantity\": 1,\n                \"addons\": [],\n                \"addons_total\": 0,\n                \"item_total\": 20,\n                \"special_instructions\": null\n            }\n        ],\n        \"items_count\": 4,\n        \"coupon_code\": null,\n        \"notes\": null,\n        \"summary\": {\n            \"subtotal\": 88.34,\n            \"tax_rate\": 5,\n            \"tax\": 4.417000000000001,\n            \"discount\": 0,\n            \"grand_total\": 92.757\n        },\n        \"currency\": {\n            \"symbol\": \"£\",\n            \"code\": \"GBP\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Cart Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"count"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Cart Count",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/cart/count",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cart",
+										"count"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:34:32 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"count\": 1\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove Item from Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/items/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Apply Coupon",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"coupon_code\": \"WELCOME26\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart/coupon",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"coupon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Coupon",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/coupon",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"coupon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"notes\": \"Please call when ready\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart/notes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/clear",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cart",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "Checkout - Pay at Counter (Pickup)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"order_type\": \"pickup\",\n    \"payment_method\": \"pay_at_counter\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/checkout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"checkout"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Checkout - Pay at Counter (Pickup)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order_type\": \"pickup\",\n    \"payment_method\": \"pay_at_counter\",\n    \"notes\": \"Will pick up in 20 mins\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/orders/checkout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"checkout"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:42:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "52"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=96"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Order placed successfully\",\n    \"data\": {\n        \"order\": {\n            \"id\": 12,\n            \"order_number\": \"ORD-HSFRIBB1\",\n            \"daily_token\": 1,\n            \"formatted_token\": \"T001\",\n            \"token_date\": \"2026-01-18\",\n            \"status\": \"pending\",\n            \"order_type\": \"pickup\",\n            \"subtotal\": 182.24,\n            \"tax\": 9.11,\n            \"delivery_charge\": 0,\n            \"discount\": 0,\n            \"total\": 191.35,\n            \"payment_method\": \"pay_at_counter\",\n            \"payment_status\": \"pending\",\n            \"created_at\": \"2026-01-18T16:42:16+00:00\",\n            \"delivery_address\": null,\n            \"notes\": \"Will pick up in 20 mins\",\n            \"items\": [\n                {\n                    \"id\": 19,\n                    \"product_id\": 1,\n                    \"product_name\": \"Bacon Burger\",\n                    \"price\": 22.78,\n                    \"quantity\": 8,\n                    \"subtotal\": 182.24,\n                    \"customizations\": {\n                        \"addons\": [\n                            {\n                                \"id\": 1,\n                                \"price\": 4.53,\n                                \"total\": 4.53,\n                                \"group_id\": 1,\n                                \"quantity\": 1,\n                                \"addon_name\": \"Extra Shot\"\n                            },\n                            {\n                                \"id\": 2,\n                                \"price\": 3.25,\n                                \"total\": 3.25,\n                                \"group_id\": 1,\n                                \"quantity\": 1,\n                                \"addon_name\": \"Almond Milk\"\n                            }\n                        ],\n                        \"variant\": {\n                            \"id\": 1,\n                            \"name\": \"Small\",\n                            \"price\": 15\n                        },\n                        \"special_instructions\": \"Extra crispy please\"\n                    }\n                }\n            ]\n        },\n        \"payment\": {\n            \"required\": false,\n            \"method\": \"pay_at_counter\",\n            \"amount\": 191.35,\n            \"currency\": \"GBP\",\n            \"instructions\": \"Please pay at the counter when collecting your order.\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Checkout - Online Payment (Delivery)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"order_type\": \"delivery\",\n    \"payment_method\": \"online\",\n    \"delivery_address\": \"123 Main Street, London, UK\",\n    \"notes\": \"Ring doorbell twice\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/checkout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"checkout"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Checkout - Online Payment (Delivery)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order_type\": \"delivery\",\n    \"payment_method\": \"online\",\n    \"delivery_address\": \"123 Main Street, London, UK\",\n    \"notes\": \"Ring doorbell twice\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/orders/checkout",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"checkout"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:43:37 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "56"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=97"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Order placed successfully\",\n    \"data\": {\n        \"order\": {\n            \"id\": 13,\n            \"order_number\": \"ORD-MJUQ0YUB\",\n            \"daily_token\": 2,\n            \"formatted_token\": \"T002\",\n            \"token_date\": \"2026-01-18\",\n            \"status\": \"pending\",\n            \"order_type\": \"delivery\",\n            \"subtotal\": 91.12,\n            \"tax\": 4.56,\n            \"delivery_charge\": 2.5,\n            \"discount\": 0,\n            \"total\": 98.18,\n            \"payment_method\": \"online\",\n            \"payment_status\": \"pending\",\n            \"created_at\": \"2026-01-18T16:43:37+00:00\",\n            \"delivery_address\": \"123 Main Street, London, UK\",\n            \"notes\": \"Ring doorbell twice\",\n            \"items\": [\n                {\n                    \"id\": 20,\n                    \"product_id\": 1,\n                    \"product_name\": \"Bacon Burger\",\n                    \"price\": 22.78,\n                    \"quantity\": 4,\n                    \"subtotal\": 91.12,\n                    \"customizations\": {\n                        \"addons\": [\n                            {\n                                \"id\": 1,\n                                \"price\": 4.53,\n                                \"total\": 4.53,\n                                \"group_id\": 1,\n                                \"quantity\": 1,\n                                \"addon_name\": \"Extra Shot\"\n                            },\n                            {\n                                \"id\": 2,\n                                \"price\": 3.25,\n                                \"total\": 3.25,\n                                \"group_id\": 1,\n                                \"quantity\": 1,\n                                \"addon_name\": \"Almond Milk\"\n                            }\n                        ],\n                        \"variant\": {\n                            \"id\": 1,\n                            \"name\": \"Small\",\n                            \"price\": 15\n                        },\n                        \"special_instructions\": \"Extra crispy please\"\n                    }\n                }\n            ]\n        },\n        \"payment\": {\n            \"required\": true,\n            \"method\": \"online\",\n            \"amount\": 98.18,\n            \"currency\": \"GBP\",\n            \"payment_url\": \"http://localhost/maicafe-app/maicafe-app/public/api/orders/13/pay\",\n            \"instructions\": \"Please complete online payment to confirm your order.\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Orders",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:44:27 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"orders\": [\n            {\n                \"id\": 13,\n                \"order_number\": \"ORD-MJUQ0YUB\",\n                \"daily_token\": 2,\n                \"formatted_token\": \"T002\",\n                \"token_date\": \"2026-01-18\",\n                \"status\": \"pending\",\n                \"order_type\": \"delivery\",\n                \"subtotal\": 91.12,\n                \"tax\": 4.56,\n                \"delivery_charge\": 2.5,\n                \"discount\": 0,\n                \"total\": 98.18,\n                \"payment_method\": \"online\",\n                \"payment_status\": \"pending\",\n                \"created_at\": \"2026-01-18T16:43:37+00:00\",\n                \"items_count\": 1\n            },\n            {\n                \"id\": 12,\n                \"order_number\": \"ORD-HSFRIBB1\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-18\",\n                \"status\": \"pending\",\n                \"order_type\": \"pickup\",\n                \"subtotal\": 182.24,\n                \"tax\": 9.11,\n                \"delivery_charge\": 0,\n                \"discount\": 0,\n                \"total\": 191.35,\n                \"payment_method\": \"pay_at_counter\",\n                \"payment_status\": \"pending\",\n                \"created_at\": \"2026-01-18T16:42:16+00:00\",\n                \"items_count\": 1\n            },\n            {\n                \"id\": 8,\n                \"order_number\": \"ORD-TEST005\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-17\",\n                \"status\": \"completed\",\n                \"order_type\": \"delivery\",\n                \"subtotal\": 60,\n                \"tax\": 6,\n                \"delivery_charge\": 2.5,\n                \"discount\": 0,\n                \"total\": 68.5,\n                \"payment_method\": \"card\",\n                \"payment_status\": \"paid\",\n                \"created_at\": \"2026-01-17T17:32:52+00:00\",\n                \"items_count\": 3\n            },\n            {\n                \"id\": 9,\n                \"order_number\": \"ORD-TEST006\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-16\",\n                \"status\": \"cancelled\",\n                \"order_type\": \"delivery\",\n                \"subtotal\": 45,\n                \"tax\": 4.5,\n                \"delivery_charge\": 2,\n                \"discount\": 0,\n                \"total\": 51.5,\n                \"payment_method\": \"card\",\n                \"payment_status\": \"refunded\",\n                \"created_at\": \"2026-01-16T19:32:52+00:00\",\n                \"items_count\": 2\n            },\n            {\n                \"id\": 6,\n                \"order_number\": \"ORD-TEST003\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-15\",\n                \"status\": \"preparing\",\n                \"order_type\": \"delivery\",\n                \"subtotal\": 115.75,\n                \"tax\": 11.58,\n                \"delivery_charge\": 3,\n                \"discount\": 10,\n                \"total\": 120.33,\n                \"payment_method\": \"cash\",\n                \"payment_status\": \"pending\",\n                \"created_at\": \"2026-01-15T19:32:52+00:00\",\n                \"items_count\": 2\n            },\n            {\n                \"id\": 7,\n                \"order_number\": \"ORD-TEST004\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-14\",\n                \"status\": \"completed\",\n                \"order_type\": \"pickup\",\n                \"subtotal\": 38.78,\n                \"tax\": 3.88,\n                \"delivery_charge\": 0,\n                \"discount\": 0,\n                \"total\": 42.66,\n                \"payment_method\": \"card\",\n                \"payment_status\": \"paid\",\n                \"created_at\": \"2026-01-14T19:32:52+00:00\",\n                \"items_count\": 1\n            },\n            {\n                \"id\": 5,\n                \"order_number\": \"ORD-TEST002\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-12\",\n                \"status\": \"completed\",\n                \"order_type\": \"pickup\",\n                \"subtotal\": 54.53,\n                \"tax\": 5.45,\n                \"delivery_charge\": 0,\n                \"discount\": 5,\n                \"total\": 54.98,\n                \"payment_method\": \"card\",\n                \"payment_status\": \"paid\",\n                \"created_at\": \"2026-01-12T19:32:52+00:00\",\n                \"items_count\": 2\n            },\n            {\n                \"id\": 4,\n                \"order_number\": \"ORD-TEST001\",\n                \"daily_token\": 1,\n                \"formatted_token\": \"T001\",\n                \"token_date\": \"2026-01-10\",\n                \"status\": \"completed\",\n                \"order_type\": \"delivery\",\n                \"subtotal\": 15,\n                \"tax\": 1.5,\n                \"delivery_charge\": 2,\n                \"discount\": 0,\n                \"total\": 18.5,\n                \"payment_method\": \"card\",\n                \"payment_status\": \"paid\",\n                \"created_at\": \"2026-01-10T19:32:52+00:00\",\n                \"items_count\": 1\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 1,\n            \"per_page\": 10,\n            \"total\": 8\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Single Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"5"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Single Order",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders/5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"5"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:45:11 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"order\": {\n            \"id\": 5,\n            \"order_number\": \"ORD-TEST002\",\n            \"daily_token\": 1,\n            \"formatted_token\": \"T001\",\n            \"token_date\": \"2026-01-12\",\n            \"status\": \"completed\",\n            \"order_type\": \"pickup\",\n            \"subtotal\": 54.53,\n            \"tax\": 5.45,\n            \"delivery_charge\": 0,\n            \"discount\": 5,\n            \"total\": 54.98,\n            \"payment_method\": \"card\",\n            \"payment_status\": \"paid\",\n            \"created_at\": \"2026-01-12T19:32:52+00:00\",\n            \"delivery_address\": null,\n            \"notes\": \"Large burger + chicken with extra shot and vanilla\",\n            \"items\": [\n                {\n                    \"id\": 5,\n                    \"product_id\": 1,\n                    \"product_name\": \"Bacon Burger\",\n                    \"price\": 25,\n                    \"quantity\": 1,\n                    \"subtotal\": 25,\n                    \"customizations\": {\n                        \"addons\": [],\n                        \"variant\": {\n                            \"id\": 3,\n                            \"name\": \"Large\",\n                            \"price\": 25\n                        }\n                    }\n                },\n                {\n                    \"id\": 6,\n                    \"product_id\": 2,\n                    \"product_name\": \"BBQ Chicken Breast\",\n                    \"price\": 29.53,\n                    \"quantity\": 1,\n                    \"subtotal\": 29.53,\n                    \"customizations\": {\n                        \"addons\": [\n                            {\n                                \"price\": 4.53,\n                                \"addon_id\": 1,\n                                \"group_id\": 1,\n                                \"addon_name\": \"Extra Shot\",\n                                \"group_name\": \"Extra Toppings\"\n                            },\n                            {\n                                \"price\": 5,\n                                \"addon_id\": 4,\n                                \"group_id\": 1,\n                                \"addon_name\": \"Vanilla\",\n                                \"group_name\": \"Extra Toppings\"\n                            }\n                        ],\n                        \"variant\": null\n                    }\n                }\n            ]\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Track Order Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/5/track",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"5",
+								"track"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Track Order Status",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders/5/track",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"5",
+										"track"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:45:58 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"order_id\": 5,\n        \"order_number\": \"ORD-TEST002\",\n        \"token\": \"T001\",\n        \"current_status\": \"completed\",\n        \"status_label\": \"Completed\",\n        \"order_type\": \"pickup\",\n        \"estimated_time\": null,\n        \"timeline\": [\n            {\n                \"label\": \"Order Placed\",\n                \"icon\": \"receipt\",\n                \"completed\": true\n            },\n            {\n                \"label\": \"Order Confirmed\",\n                \"icon\": \"check-circle\",\n                \"completed\": true\n            },\n            {\n                \"label\": \"Preparing\",\n                \"icon\": \"fire\",\n                \"completed\": true\n            },\n            {\n                \"label\": \"Ready for Pickup\",\n                \"icon\": \"bell\",\n                \"completed\": true\n            },\n            {\n                \"label\": \"Completed\",\n                \"icon\": \"check-double\",\n                \"completed\": true,\n                \"current\": true\n            }\n        ],\n        \"is_cancelled\": false\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Cancel Order (only pending orders)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/5/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"5",
+								"cancel"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Cancel Order (only pending orders)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders/5/cancel",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"5",
+										"cancel"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:47:07 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"This order cannot be cancelled. Only pending orders can be cancelled.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reorder (add previous order items to cart)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/5/reorder",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"5",
+								"reorder"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Reorder (add previous order items to cart)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/orders/5/reorder",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"5",
+										"reorder"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:48:14 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"2 item(s) added to cart\",\n    \"data\": {\n        \"added_items\": 2,\n        \"skipped_items\": [],\n        \"cart\": {\n            \"items_count\": 2,\n            \"subtotal\": 45,\n            \"items\": [\n                {\n                    \"id\": 5,\n                    \"product_name\": \"Bacon Burger\",\n                    \"variant_name\": \"Large\",\n                    \"quantity\": 1,\n                    \"item_total\": 25\n                },\n                {\n                    \"id\": 6,\n                    \"product_name\": \"BBQ Chicken Breast\",\n                    \"variant_name\": null,\n                    \"quantity\": 1,\n                    \"item_total\": 20\n                }\n            ]\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Confirm Online Payment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_reference\": \"PAY_12345ABC\",\n    \"payment_provider\": \"stripe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/5/payment/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"5",
+								"payment",
+								"confirm"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Confirm Online Payment",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"payment_reference\": \"PAY_12345ABC\",\n    \"payment_provider\": \"stripe\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/orders/5/payment/confirm",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"orders",
+										"5",
+										"payment",
+										"confirm"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:49:27 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "58"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Payment already confirmed for this order\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Order by Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/by-token?token=1&date=2026-01-18",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"by-token"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "1"
+								},
+								{
+									"key": "date",
+									"value": "2026-01-18"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl -X GET \"http://localhost/maicafe-app/maicafe-app/public/api/orders/by-token?token=1&date=2026-01-18\" \\\n     2 │  -H \"Authorization: Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83\" \\\n     3 │  -H \"Accept: application/json\""
+					},
+					"response": [
+						{
+							"name": "Get Order by Token",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 7|Gga17qoCWuJoHXd7eMPQFUWjQwcomSACdhjuHJ83"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "http://localhost/maicafe-app/maicafe-app/public/api/orders/by-token?token=1&date=2026-01-18",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"path": [
+										"maicafe-app",
+										"maicafe-app",
+										"public",
+										"api",
+										"orders",
+										"by-token"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "1"
+										},
+										{
+											"key": "date",
+											"value": "2026-01-18"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 18 Jan 2026 16:51:24 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache/2.4.52 (Ubuntu)"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "60"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "59"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"order\": {\n            \"id\": 12,\n            \"order_number\": \"ORD-HSFRIBB1\",\n            \"daily_token\": 1,\n            \"formatted_token\": \"T001\",\n            \"token_date\": \"2026-01-18\",\n            \"status\": \"pending\",\n            \"order_type\": \"pickup\",\n            \"subtotal\": 182.24,\n            \"tax\": 9.11,\n            \"delivery_charge\": 0,\n            \"discount\": 0,\n            \"total\": 191.35,\n            \"payment_method\": \"pay_at_counter\",\n            \"payment_status\": \"pending\",\n            \"created_at\": \"2026-01-18T16:42:16+00:00\",\n            \"items_count\": 1\n        }\n    }\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}

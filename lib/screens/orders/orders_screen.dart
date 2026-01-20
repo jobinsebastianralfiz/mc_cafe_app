@@ -1,8 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../config/theme/app_colors.dart';
+import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/enums/app_enums.dart';
+import '../../data/models/order_model.dart';
+import '../../providers/order_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -16,74 +24,31 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   final List<String> _tabs = ['All', 'Upcoming', 'Past'];
 
-  final List<Map<String, dynamic>> _allOrders = [
-    {
-      'id': '#47547896',
-      'name': 'Mocha Coffee',
-      'date': 'December 18, 2025',
-      'price': 8.99,
-      'status': 'delivered',
-      'image': 'assets/images/coffee_cup.png',
-      'items': [
-        {'name': 'Mocha Coffee', 'qty': 2, 'price': 8.99},
-        {'name': 'Iced Caramel Latte', 'qty': 1, 'price': 12.50},
-      ],
-      'estimateTime': '30 minutes',
-      'trackingStep': 2,
-    },
-    {
-      'id': '#65748232',
-      'name': 'Iced Caramel Latte',
-      'date': 'November 27, 2025',
-      'price': 12.50,
-      'status': 'delivered',
-      'image': 'assets/images/coffee_cup.png',
-      'items': [
-        {'name': 'Iced Caramel Latte', 'qty': 1, 'price': 12.50},
-      ],
-      'estimateTime': '25 minutes',
-      'trackingStep': 3,
-    },
-    {
-      'id': '#34120500',
-      'name': 'Signature Latte',
-      'date': 'November 6, 2025',
-      'price': 5.50,
-      'status': 'preparing',
-      'image': 'assets/images/coffee_cup.png',
-      'items': [
-        {'name': 'Signature Latte', 'qty': 1, 'price': 5.50},
-      ],
-      'estimateTime': '15 minutes',
-      'trackingStep': 1,
-    },
-    {
-      'id': '#985241106',
-      'name': 'Espresso and Donut',
-      'date': 'October 15, 2025',
-      'price': 6.75,
-      'status': 'canceled',
-      'image': 'assets/images/coffee_cup.png',
-      'items': [
-        {'name': 'Espresso', 'qty': 1, 'price': 3.50},
-        {'name': 'Donut', 'qty': 1, 'price': 3.25},
-      ],
-      'estimateTime': '20 minutes',
-      'trackingStep': 0,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<OrderProvider>().loadOrders(refresh: true);
+    });
+  }
 
-  List<Map<String, dynamic>> get _filteredOrders {
+  List<Order> _getFilteredOrders(List<Order> orders) {
     switch (_selectedTabIndex) {
       case 1: // Upcoming
-        return _allOrders.where((order) => order['status'] == 'preparing').toList();
+        return orders.where((order) => order.isActive).toList();
       case 2: // Past
-        return _allOrders.where((order) =>
-          order['status'] == 'delivered' || order['status'] == 'canceled'
-        ).toList();
+        return orders.where((order) => order.isCompleted || order.isCancelled).toList();
       default: // All
-        return _allOrders;
+        return orders;
     }
+  }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   @override
@@ -108,20 +73,37 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
               // Orders List
               Expanded(
-                child: _filteredOrders.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
+                child: Consumer<OrderProvider>(
+                  builder: (context, orderProvider, child) {
+                    final filteredOrders = _getFilteredOrders(orderProvider.orders);
+                    final isLoading = orderProvider.status == LoadingStatus.loading;
+
+                    if (isLoading && orderProvider.orders.isEmpty) {
+                      return _buildLoadingState();
+                    }
+
+                    if (filteredOrders.isEmpty) {
+                      return _buildEmptyState();
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => orderProvider.loadOrders(refresh: true),
+                      color: AppColors.primary,
+                      child: ListView.builder(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppConstants.paddingL,
                         ),
-                        itemCount: _filteredOrders.length,
+                        itemCount: filteredOrders.length,
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildOrderCard(_filteredOrders[index]),
+                            child: _buildOrderCard(filteredOrders[index]),
                           );
                         },
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -219,6 +201,23 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
+  Widget _buildLoadingState() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingL),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: ShimmerLoading(
+            width: double.infinity,
+            height: 140,
+            borderRadius: 16,
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -253,7 +252,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order) {
+  Widget _buildOrderCard(Order order) {
+    // Get first item for display
+    final firstItemName = order.items.isNotEmpty
+        ? order.items.first.productName
+        : 'Order ${order.orderNumber}';
+    final firstItemImage = order.items.isNotEmpty
+        ? order.items.first.productImage
+        : null;
+
+    // Format date
+    final formattedDate = _formatDate(order.createdAt);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -276,12 +286,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
               // Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  order['image'],
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                ),
+                child: firstItemImage != null
+                    ? CachedNetworkImage(
+                        imageUrl: ApiConfig.getImageUrl(firstItemImage) ?? '',
+                        width: 70,
+                        height: 70,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: AppColors.lightGrey,
+                          highlightColor: AppColors.white,
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: AppColors.lightGrey,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => _buildPlaceholderImage(),
+                      )
+                    : _buildPlaceholderImage(),
               ),
               const SizedBox(width: 12),
 
@@ -291,23 +316,34 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order['name'],
+                      firstItemName,
                       style: const TextStyle(
                         fontFamily: 'Sora',
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textHeading,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      order['date'],
+                      formattedDate,
                       style: const TextStyle(
                         fontFamily: 'Sora',
                         fontSize: 13,
                         color: AppColors.textPrimary,
                       ),
                     ),
+                    if (order.items.length > 1)
+                      Text(
+                        '+${order.items.length - 1} more items',
+                        style: const TextStyle(
+                          fontFamily: 'Sora',
+                          fontSize: 12,
+                          color: AppColors.grey,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -317,7 +353,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '£ ${order['price'].toStringAsFixed(2)}',
+                    '£ ${order.total.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontFamily: 'Sora',
                       fontSize: 16,
@@ -326,7 +362,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  _buildStatusBadge(order['status']),
+                  _buildStatusBadge(order.status),
                 ],
               ),
             ],
@@ -351,7 +387,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       style: TextStyle(color: AppColors.primary),
                     ),
                     TextSpan(
-                      text: order['id'],
+                      text: order.orderNumber,
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
@@ -367,7 +403,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   Navigator.pushNamed(
                     context,
                     AppRoutes.orderDetails,
-                    arguments: order,
+                    arguments: {
+                      'orderId': order.id,
+                      'order': order,
+                    },
                   );
                 },
                 child: Container(
@@ -394,31 +433,65 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildPlaceholderImage() {
+    return Container(
+      width: 70,
+      height: 70,
+      decoration: BoxDecoration(
+        color: AppColors.primaryBackground,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Icon(
+        Icons.shopping_bag_outlined,
+        color: AppColors.primary,
+        size: 32,
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(OrderStatus status) {
     Color bgColor;
     Color textColor;
     String label;
 
     switch (status) {
-      case 'delivered':
+      case OrderStatus.delivered:
+      case OrderStatus.completed:
         bgColor = const Color(0xFFE8F5E9);
         textColor = const Color(0xFF4CAF50);
-        label = 'Order Delivered';
+        label = 'Completed';
         break;
-      case 'preparing':
+      case OrderStatus.preparing:
         bgColor = const Color(0xFFFFF3E0);
         textColor = const Color(0xFFFF9800);
         label = 'Preparing';
         break;
-      case 'canceled':
+      case OrderStatus.ready:
+        bgColor = const Color(0xFFE3F2FD);
+        textColor = const Color(0xFF2196F3);
+        label = 'Ready';
+        break;
+      case OrderStatus.pending:
+        bgColor = const Color(0xFFFFF8E1);
+        textColor = const Color(0xFFFFC107);
+        label = 'Pending';
+        break;
+      case OrderStatus.confirmed:
+        bgColor = const Color(0xFFE8F5E9);
+        textColor = const Color(0xFF4CAF50);
+        label = 'Confirmed';
+        break;
+      case OrderStatus.outForDelivery:
+        bgColor = const Color(0xFFE3F2FD);
+        textColor = const Color(0xFF2196F3);
+        label = 'Out for Delivery';
+        break;
+      case OrderStatus.cancelled:
+      case OrderStatus.refunded:
         bgColor = const Color(0xFFFFEBEE);
         textColor = const Color(0xFFF44336);
-        label = 'Canceled';
+        label = status == OrderStatus.cancelled ? 'Cancelled' : 'Refunded';
         break;
-      default:
-        bgColor = AppColors.grey.withOpacity(0.2);
-        textColor = AppColors.textPrimary;
-        label = status;
     }
 
     return Container(

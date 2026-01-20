@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
@@ -19,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,32 +30,39 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+  Future<void> _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-      // Dummy credentials for testing
-      const dummyEmail = 'test@mccafe.com';
-      const dummyPassword = 'password123';
+    final authProvider = context.read<AuthProvider>();
 
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
+    final success = await authProvider.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
 
-          if (_emailController.text == dummyEmail &&
-              _passwordController.text == dummyPassword) {
-            Navigator.pushReplacementNamed(context, AppRoutes.home);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Use test@mccafe.com / password123'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        }
-      });
+    if (!mounted) return;
+
+    if (success) {
+      // Navigate to home and clear all previous routes
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.home,
+        (route) => false,
+      );
+    } else {
+      // Show error message
+      _showErrorSnackBar(authProvider.errorMessage ?? 'Login failed');
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _handleGoogleLogin() {
@@ -185,10 +194,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: screenHeight * 0.03),
 
                   // Sign In button
-                  CustomButton(
-                    text: 'Sign In',
-                    onPressed: _handleLogin,
-                    isLoading: _isLoading,
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, _) {
+                      return CustomButton(
+                        text: 'Sign In',
+                        onPressed: _handleLogin,
+                        isLoading: auth.isLoading,
+                      );
+                    },
                   ),
 
                   SizedBox(height: screenHeight * 0.04),

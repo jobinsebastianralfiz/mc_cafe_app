@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../config/theme/app_colors.dart';
 
+/// Generic shimmer widget that wraps a child with shimmer effect
+class ShimmerWidget extends StatelessWidget {
+  final Widget child;
+
+  const ShimmerWidget({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.lightGrey,
+      highlightColor: AppColors.white,
+      child: child,
+    );
+  }
+}
+
 class ShimmerLoading extends StatelessWidget {
   final double width;
   final double height;

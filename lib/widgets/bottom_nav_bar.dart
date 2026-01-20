@@ -4,11 +4,13 @@ import '../config/theme/app_colors.dart';
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final int cartCount;
 
   const BottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.cartCount = 0,
   });
 
   @override
@@ -49,6 +51,7 @@ class BottomNavBar extends StatelessWidget {
             outlinedIcon: Icons.shopping_bag_outlined,
             isSelected: currentIndex == 2,
             onTap: () => onTap(2),
+            badgeCount: cartCount,
           ),
           _NavItem(
             icon: Icons.person_rounded,
@@ -67,12 +70,14 @@ class _NavItem extends StatelessWidget {
   final IconData outlinedIcon;
   final bool isSelected;
   final VoidCallback onTap;
+  final int badgeCount;
 
   const _NavItem({
     required this.icon,
     required this.outlinedIcon,
     required this.isSelected,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   @override
@@ -85,10 +90,40 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? icon : outlinedIcon,
-              size: 26,
-              color: isSelected ? AppColors.primary : AppColors.grey,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  isSelected ? icon : outlinedIcon,
+                  size: 26,
+                  color: isSelected ? AppColors.primary : AppColors.grey,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    right: -8,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Text(
+                        badgeCount > 99 ? '99+' : badgeCount.toString(),
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 6),
             AnimatedContainer(

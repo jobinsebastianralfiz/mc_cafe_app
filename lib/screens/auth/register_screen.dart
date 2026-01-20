@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
@@ -17,29 +20,55 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleRegister() {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-      // TODO: Implement register logic
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      });
+  Future<void> _handleRegister() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final authProvider = context.read<AuthProvider>();
+
+    final success = await authProvider.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      passwordConfirmation: _confirmPasswordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      // Navigate to OTP verification
+      Navigator.pushNamed(
+        context,
+        AppRoutes.otpVerification,
+        arguments: {'email': _emailController.text.trim()},
+      );
+    } else {
+      // Show error message
+      _showErrorSnackBar(authProvider.errorMessage ?? 'Registration failed');
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _handleGoogleLogin() {
@@ -109,10 +138,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   SizedBox(height: screenHeight * 0.04),
 
+                  // Name field
+                  CustomTextField(
+                    controller: _nameController,
+                    hintText: 'Full Name',
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: AppColors.grey,
+                      size: 20,
+                    ),
+                    validator: Validators.validateName,
+                  ),
+
+                  const SizedBox(height: 16),
+
                   // Email field
                   CustomTextField(
                     controller: _emailController,
-                    hintText: 'Email or Mobile',
+                    hintText: 'Email',
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     prefixIcon: const Icon(
@@ -162,10 +207,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(height: screenHeight * 0.04),
 
                   // Sign Up button
-                  CustomButton(
-                    text: 'Sign Up',
-                    onPressed: _handleRegister,
-                    isLoading: _isLoading,
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, _) {
+                      return CustomButton(
+                        text: 'Sign Up',
+                        onPressed: _handleRegister,
+                        isLoading: auth.isLoading,
+                      );
+                    },
                   ),
 
                   SizedBox(height: screenHeight * 0.03),

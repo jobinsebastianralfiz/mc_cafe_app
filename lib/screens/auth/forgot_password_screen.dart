@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/validators.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
@@ -18,7 +21,6 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -26,16 +28,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handleSend() {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-      // TODO: Implement forgot password logic
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      });
+  Future<void> _handleSend() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final authProvider = context.read<AuthProvider>();
+
+    final success = await authProvider.forgotPassword(
+      email: _emailController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      _showSnackBar('Password reset link sent to your email');
+      // Navigate back to login after success
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    } else {
+      _showSnackBar(
+        authProvider.errorMessage ?? 'Failed to send reset link',
+        isError: true,
+      );
     }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _handleGoogleLogin() {
@@ -132,10 +155,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   SizedBox(height: screenHeight * 0.03),
 
                   // Send button
-                  CustomButton(
-                    text: 'Send',
-                    onPressed: _handleSend,
-                    isLoading: _isLoading,
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, _) {
+                      return CustomButton(
+                        text: 'Send',
+                        onPressed: _handleSend,
+                        isLoading: auth.isLoading,
+                      );
+                    },
                   ),
 
                   SizedBox(height: screenHeight * 0.04),

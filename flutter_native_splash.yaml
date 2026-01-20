@@ -1,0 +1,40 @@
+# Flutter Native Splash Configuration
+# Run: dart run flutter_native_splash:create
+
+flutter_native_splash:
+  # Main splash icon
+  image: assets/images/splash_icon.png
+
+  # Branding image at bottom (optional)
+  # branding: assets/images/branding.png
+
+  # Icon background color (used if icon has transparency)
+  # For the gradient background, we use android_12 settings
+
+  # Fallback color for platforms that don't support gradients
+  color: "#D4A574"
+
+  # Android 12+ specific settings with gradient support
+  android_12:
+    # Use the custom gradient drawable as background
+    image: assets/images/splash_icon.png
+    icon_background_color: "#D4A574"
+    # The gradient is applied via the splash_background.xml drawable
+
+  # iOS settings
+  # For iOS, we'll use a solid color that matches the middle of our gradient
+  # iOS LaunchScreen.storyboard will need manual gradient setup if needed
+
+  # Web settings
+  web: false
+
+  # Fullscreen mode
+  fullscreen: true
+
+  # Android specific
+  android: true
+  android_gravity: center
+
+  # iOS specific
+  ios: true
+  ios_content_mode: center

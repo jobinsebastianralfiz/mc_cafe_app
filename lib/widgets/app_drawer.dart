@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../config/theme/app_colors.dart';
+import '../providers/auth_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -61,7 +64,7 @@ class AppDrawer extends StatelessWidget {
           Column(
             children: [
               // Header with user info
-              _buildHeader(),
+              _buildHeader(context),
 
               // Menu items
               Expanded(
@@ -134,7 +137,10 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final firstName = user?.name.split(' ').first ?? 'Guest';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
@@ -150,21 +156,26 @@ class AppDrawer extends StatelessWidget {
               border: Border.all(color: AppColors.white, width: 2),
             ),
             child: ClipOval(
-              child: Image.asset(
-                'assets/images/avatar.png',
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-              ),
+              child: user?.avatar != null
+                  ? Image.network(
+                      user!.avatar!,
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildDefaultAvatar(firstName);
+                      },
+                    )
+                  : _buildDefaultAvatar(firstName),
             ),
           ),
 
           const SizedBox(height: 16),
 
           // Name
-          const Text(
-            'Rishan Pathari',
-            style: TextStyle(
+          Text(
+            user?.name ?? 'Guest User',
+            style: const TextStyle(
               fontFamily: 'Sora',
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -176,14 +187,33 @@ class AppDrawer extends StatelessWidget {
 
           // Email
           Text(
-            'rishanang@gmail.com',
+            user?.email ?? '',
             style: TextStyle(
               fontFamily: 'Sora',
               fontSize: 14,
-              color: AppColors.white.withOpacity(0.8),
+              color: AppColors.white.withValues(alpha: 0.8),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultAvatar(String name) {
+    return Container(
+      width: 64,
+      height: 64,
+      color: AppColors.white.withValues(alpha: 0.3),
+      child: Center(
+        child: Text(
+          name.isNotEmpty ? name[0].toUpperCase() : 'G',
+          style: const TextStyle(
+            fontFamily: 'Sora',
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
+          ),
+        ),
       ),
     );
   }

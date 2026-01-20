@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../config/theme/app_colors.dart';
 import '../../config/theme/app_text_styles.dart';
 import '../../core/constants/app_constants.dart';
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/pattern_background.dart';
@@ -14,12 +17,68 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // TODO: Add animation controllers if needed
+  bool _isInitializing = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Defer initialization to after the first frame to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeApp();
+    });
+  }
+
+  Future<void> _initializeApp() async {
+    final authProvider = context.read<AuthProvider>();
+
+    // Initialize auth state
+    await authProvider.init();
+
+    if (!mounted) return;
+
+    // If user is already logged in, go directly to home
+    if (authProvider.isAuthenticated) {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      return;
+    }
+
+    // Show the welcome screen
+    setState(() {
+      _isInitializing = false;
+    });
+  }
+
+  void _handleGetStarted() {
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Show loading while initializing
+    if (_isInitializing) {
+      return Scaffold(
+        body: PatternBackground(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/logos/mc_logo.png',
+                  height: 100,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 24),
+                const CircularProgressIndicator(
+                  color: AppColors.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: PatternBackground(
@@ -77,9 +136,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     // Get Started button
                     CustomButton(
                       text: 'Get Started',
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, AppRoutes.login);
-                      },
+                      onPressed: _handleGetStarted,
                     ),
 
                     SizedBox(height: screenHeight * 0.05),
