@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS App Store Publishing Guide — Flutter</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #d2d2d7;
+  padding: 24px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+}
+.sidebar h2 { font-size: 16px; margin-bottom: 16px; color: #06c; }
+.sidebar ul { list-style: none; }
+.sidebar li { margin: 6px 0; }
+.sidebar a {
+  color: #1d1d1f;
+  text-decoration: none;
+  font-size: 14px;
+  display: block;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.sidebar a:hover { background: #f0f0f0; color: #06c; }
+.sidebar .section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #86868b;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+
+/* Main content */
+.content {
+  margin-left: 280px;
+  flex: 1;
+  padding: 40px 60px;
+  max-width: 1100px;
+}
+.content h1 { font-size: 36px; margin-bottom: 8px; }
+.content > p.subtitle {
+  font-size: 18px;
+  color: #6e6e73;
+  margin-bottom: 40px;
+}
+.content h2 {
+  font-size: 28px;
+  margin-top: 60px;
+  margin-bottom: 16px;
+  padding-top: 20px;
+  border-top: 2px solid #d2d2d7;
+}
+.content h3 { font-size: 22px; margin-top: 32px; margin-bottom: 12px; }
+.content h4 { font-size: 18px; margin-top: 24px; margin-bottom: 8px; color: #424245; }
+.content p { margin: 12px 0; }
+.content ul, .content ol { margin: 12px 0 12px 28px; }
+.content li { margin: 6px 0; }
+
+/* Code blocks */
+pre {
+  background: #1d1d1f;
+  color: #f5f5f7;
+  padding: 16px 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 14px;
+  margin: 12px 0;
+  line-height: 1.5;
+}
+code {
+  background: #e8e8ed;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 0.92em;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+
+/* Callouts */
+.callout {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin: 16px 0;
+  border-left: 4px solid;
+}
+.callout-info { background: #e3f2fd; border-color: #1976d2; }
+.callout-warning { background: #fff3e0; border-color: #f57c00; }
+.callout-danger { background: #ffebee; border-color: #c62828; }
+.callout-success { background: #e8f5e9; border-color: #2e7d32; }
+.callout-tip { background: #f3e5f5; border-color: #7b1fa2; }
+.callout strong { display: block; margin-bottom: 4px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+th { background: #f5f5f7; font-weight: 600; font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+
+/* Status chips */
+.chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 6px;
+}
+.chip-required { background: #ffebee; color: #c62828; }
+.chip-optional { background: #e8f5e9; color: #2e7d32; }
+.chip-path-a { background: #e3f2fd; color: #1565c0; }
+.chip-path-b { background: #fff3e0; color: #e65100; }
+
+/* Path toggle */
+.path-box {
+  background: #fff;
+  border: 1px solid #d2d2d7;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.path-box h4 { margin-top: 0; color: #06c; }
+
+/* Number badges in headings */
+.step-badge {
+  display: inline-block;
+  background: #06c;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 28px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.credentials-table th { background: #1d1d1f; color: #fff; }
+.credentials-table td:first-child { font-weight: 600; width: 180px; }
+
+.checklist li { list-style: none; padding-left: 26px; position: relative; }
+.checklist li:before {
+  content: "☐";
+  position: absolute;
+  left: 0;
+  font-size: 18px;
+}
+
+a.external::after { content: " ↗"; font-size: 0.85em; }
+a { color: #06c; }
+
+/* Print styles */
+@media print {
+  .sidebar { display: none; }
+  .content { margin-left: 0; padding: 20px; }
+  pre { background: #f0f0f0; color: #000; }
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h2>iOS Publishing Guide</h2>
+
+  <div class="section-title">Quick Start</div>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#prerequisites">Prerequisites</a></li>
+    <li><a href="#credentials">Credentials Vault</a></li>
+    <li><a href="#decision-tree">Decision: iPhone or not?</a></li>
+  </ul>
+
+  <div class="section-title">Setup (One Time)</div>
+  <ul>
+    <li><a href="#step-1-team">1. Apple Team Setup</a></li>
+    <li><a href="#step-2-app-id">2. Register App ID</a></li>
+    <li><a href="#step-3-apns">3. APNs Key (Push)</a></li>
+    <li><a href="#step-4-firebase">4. Firebase Setup</a></li>
+  </ul>
+
+  <div class="section-title">Signing</div>
+  <ul>
+    <li><a href="#step-5-xcode">5. Xcode Configuration</a></li>
+    <li><a href="#path-a">Path A: With iPhone</a></li>
+    <li><a href="#path-b">Path B: No iPhone (Manual)</a></li>
+  </ul>
+
+  <div class="section-title">Build & Upload</div>
+  <ul>
+    <li><a href="#step-6-build">6. Pre-Build Checks</a></li>
+    <li><a href="#step-7-archive">7. Archive in Xcode</a></li>
+    <li><a href="#step-8-upload">8. Upload to App Store</a></li>
+  </ul>
+
+  <div class="section-title">App Store Connect</div>
+  <ul>
+    <li><a href="#step-9-create-app">9. Create App Record</a></li>
+    <li><a href="#step-10-screenshots">10. Screenshots</a></li>
+    <li><a href="#step-11-metadata">11. Metadata & URLs</a></li>
+    <li><a href="#step-12-privacy">12. App Privacy</a></li>
+    <li><a href="#step-13-rating">13. Age Rating</a></li>
+    <li><a href="#step-14-pricing">14. Pricing & Availability</a></li>
+    <li><a href="#step-15-review-info">15. Review Information</a></li>
+    <li><a href="#step-16-submit">16. Submit for Review</a></li>
+  </ul>
+
+  <div class="section-title">Reference</div>
+  <ul>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#post-submit">Post-Submission</a></li>
+    <li><a href="#updates">Releasing Updates</a></li>
+    <li><a href="#checklist">Final Checklist</a></li>
+  </ul>
+</nav>
+
+<main class="content">
+
+<h1>iOS App Store Publishing Guide</h1>
+<p class="subtitle">Complete end-to-end submission flow for Flutter iOS apps. Based on real submission of <strong>MaiCafe</strong> (May 17, 2026).</p>
+
+<!-- ============== OVERVIEW ============== -->
+<h2 id="overview">Overview</h2>
+<p>Publishing a Flutter app to the iOS App Store takes <strong>~2–3 hours</strong> end-to-end if all prerequisites are ready. The flow has 16 main steps across 4 phases:</p>
+<ol>
+  <li><strong>Apple Developer setup</strong> — register app, configure push, create signing identity</li>
+  <li><strong>Firebase setup</strong> — wire APNs key for iOS push notifications</li>
+  <li><strong>Xcode build &amp; upload</strong> — sign, archive, distribute</li>
+  <li><strong>App Store Connect</strong> — metadata, screenshots, privacy, submit</li>
+</ol>
+
+<div class="callout callout-info">
+  <strong>📌 Two Paths Inside</strong>
+  This guide has two paths depending on whether you have a physical iPhone for testing. Both end at the same place. See <a href="#decision-tree">Decision Tree</a>.
+</div>
+
+<!-- ============== PREREQUISITES ============== -->
+<h2 id="prerequisites">Prerequisites</h2>
+<h3>Required before you start</h3>
+<ul class="checklist">
+  <li><strong>Mac computer</strong> running macOS 14+ (Sonoma or later)</li>
+  <li><strong>Xcode 15+</strong> installed (free from Mac App Store, ~15GB)</li>
+  <li><strong>Flutter SDK 3.35+</strong> installed and on PATH</li>
+  <li><strong>CocoaPods</strong> installed (<code>sudo gem install cocoapods</code>)</li>
+  <li><strong>Apple ID</strong> with access to the client's developer team</li>
+  <li><strong>Client must have:</strong>
+    <ul>
+      <li>Active Apple Developer Program membership ($99/year)</li>
+      <li>Accepted the latest Program License Agreement (PLA)</li>
+      <li>Added you as Admin or App Manager in App Store Connect &amp; Developer team</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Flutter project requirements</h3>
+<ul class="checklist">
+  <li><code>pubspec.yaml</code> has version set (e.g., <code>version: 1.0.0+1</code>)</li>
+  <li><code>ios/Runner/Info.plist</code> has <code>CFBundleDisplayName</code></li>
+  <li>App icon present at <code>ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png</code> (no transparency, no rounded corners)</li>
+  <li>Bundle identifier set in Xcode (typically <code>com.yourdomain.appname</code>)</li>
+  <li>If using Firebase: <code>ios/Runner/GoogleService-Info.plist</code> present and configured</li>
+</ul>
+
+<!-- ============== CREDENTIALS VAULT ============== -->
+<h2 id="credentials">Credentials Vault</h2>
+<p>Track these values for each project. Keep them somewhere secure (1Password, Bitwarden, encrypted note). <strong>Never commit them to git.</strong></p>
+
+<table class="credentials-table">
+  <thead>
+    <tr><th>Item</th><th>What it is</th><th>Where to find / store</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Apple Team ID</td>
+      <td>10-character team identifier (e.g., <code>3L2T949VCR</code>)</td>
+      <td>developer.apple.com → top-right → membership details</td>
+    </tr>
+    <tr>
+      <td>Bundle ID</td>
+      <td>Reverse-domain app identifier (e.g., <code>com.maicafe.mcCafeApp</code>)</td>
+      <td>Xcode → Runner → Signing &amp; Capabilities</td>
+    </tr>
+    <tr>
+      <td>App Store Connect App ID</td>
+      <td>Numeric ID auto-assigned (e.g., <code>6770197831</code>)</td>
+      <td>App Store Connect → app → App Information</td>
+    </tr>
+    <tr>
+      <td>SKU</td>
+      <td>Internal app identifier you set (e.g., <code>MAICAFE001</code>)</td>
+      <td>Set during app creation, view in App Information</td>
+    </tr>
+    <tr>
+      <td>APNs Key ID</td>
+      <td>10-character key ID for push notifications</td>
+      <td>developer.apple.com → Keys → click your key. Backup with <code>.p8</code> file</td>
+    </tr>
+    <tr>
+      <td>APNs <code>.p8</code> file</td>
+      <td>Private key file (downloads ONCE — keep safe!)</td>
+      <td>Stored in 1Password / encrypted folder. Used for Firebase upload</td>
+    </tr>
+    <tr>
+      <td>Provisioning Profile Name</td>
+      <td>e.g., <code>MaiCafe App Store</code></td>
+      <td>developer.apple.com → Profiles</td>
+    </tr>
+    <tr>
+      <td>Distribution Certificate</td>
+      <td>"Apple Distribution: TEAM NAME"</td>
+      <td>Created in Xcode → Settings → Accounts → Manage Certificates</td>
+    </tr>
+    <tr>
+      <td>Demo Account (for App Review)</td>
+      <td>Email + password reviewers use</td>
+      <td>Must be pre-verified production account. Add to App Review notes</td>
+    </tr>
+    <tr>
+      <td>Privacy Policy URL</td>
+      <td>Must be a live web page</td>
+      <td>Provided by client. Required by Apple</td>
+    </tr>
+    <tr>
+      <td>Support URL</td>
+      <td>Live web page where users can get help</td>
+      <td>Provided by client. Can be a homepage #contact anchor</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠️ APNs .p8 File</strong>
+  Apple lets you download the <code>.p8</code> file <strong>only once</strong> at creation time. If lost, you must revoke and create a new key (which requires re-uploading to Firebase). Store the file safely.
+</div>
+
+<!-- ============== DECISION TREE ============== -->
+<h2 id="decision-tree">Decision Tree: iPhone or No iPhone?</h2>
+<p>Do you have a physical iPhone available for testing?</p>
+
+<div class="path-box">
+  <h4>✅ YES — I have an iPhone</h4>
+  <p>Use <strong>Automatic Signing</strong>. Xcode handles certificate + profile creation automatically. Connect your iPhone via USB and Xcode will register it to the team.</p>
+  <p><strong>Pros:</strong> Less manual configuration. Can test on device before uploading.</p>
+  <p>→ Follow <a href="#path-a">Path A</a> at step 5.</p>
+</div>
+
+<div class="path-box">
+  <h4>❌ NO — No iPhone available</h4>
+  <p>Use <strong>Manual Signing</strong> with a Distribution profile. Skips the development profile requirement (which needs a registered device).</p>
+  <p><strong>Pros:</strong> Works without any iOS device. <strong>Cons:</strong> Can only test via TestFlight after upload (someone with iPhone needs to install via TestFlight).</p>
+  <p>→ Follow <a href="#path-b">Path B</a> at step 5.</p>
+</div>
+
+<!-- ============== STEP 1 ============== -->
+<h2 id="step-1-team"><span class="step-badge">1</span>Apple Team Setup</h2>
+
+<h3>1.1 Accept the team invitation</h3>
+<ol>
+  <li>Check email for invitations from <strong>Apple Developer Program</strong> and <strong>App Store Connect</strong></li>
+  <li>Accept both with the Apple ID you'll use for development</li>
+  <li>If client hasn't sent invites: ask them to log into <a href="https://appstoreconnect.apple.com/access/users" class="external" target="_blank">appstoreconnect.apple.com → Users and Access</a> → add you with role <strong>Admin</strong> or <strong>App Manager</strong></li>
+</ol>
+
+<h3>1.2 Verify Program License Agreement is accepted</h3>
+<p>Log into <a href="https://developer.apple.com/account" class="external" target="_blank">developer.apple.com/account</a>. If you see a yellow banner about an "updated PLA", the <strong>account holder</strong> (not you) must accept it. Ask the client.</p>
+
+<h3>1.3 Add Apple ID to Xcode</h3>
+<ol>
+  <li>Open Xcode → menu <strong>Xcode → Settings</strong> (⌘,)</li>
+  <li>Click <strong>Accounts</strong> tab</li>
+  <li>Click <strong>+</strong> bottom-left → <strong>Apple ID</strong> → sign in</li>
+  <li>Confirm the client's team (e.g., MAICAFE LTD) appears under "Teams"</li>
+</ol>
+
+<!-- ============== STEP 2 ============== -->
+<h2 id="step-2-app-id"><span class="step-badge">2</span>Register App ID</h2>
+
+<p>Go to <a href="https://developer.apple.com/account/resources/identifiers/list" class="external" target="_blank">developer.apple.com → Certificates, Identifiers &amp; Profiles → Identifiers</a></p>
+
+<ol>
+  <li>Top-right team selector → confirm correct team</li>
+  <li>Click the <strong>+</strong> next to "Identifiers"</li>
+  <li>Select <strong>App IDs</strong> → Continue</li>
+  <li>Select <strong>App</strong> → Continue</li>
+  <li>Fill in:
+    <ul>
+      <li><strong>Description:</strong> Your app name (no special characters — no <code>&amp;</code>, no apostrophes)</li>
+      <li><strong>Bundle ID:</strong> Click <strong>Explicit</strong> → enter exactly as in Xcode (e.g., <code>com.maicafe.mcCafeApp</code>)</li>
+    </ul>
+  </li>
+  <li>Scroll to <strong>Capabilities</strong> — tick:
+    <ul>
+      <li>✅ <strong>Push Notifications</strong> (if you use push)</li>
+      <li>✅ <strong>Sign in with Apple</strong> (only if you use it)</li>
+      <li>✅ <strong>Associated Domains</strong> (only if you use universal links)</li>
+    </ul>
+  </li>
+  <li>Click <strong>Continue</strong> → review → <strong>Register</strong></li>
+</ol>
+
+<!-- ============== STEP 3 ============== -->
+<h2 id="step-3-apns"><span class="step-badge">3</span>Create APNs Auth Key</h2>
+
+<p>Only needed if your app uses push notifications. One key works for all apps in the team.</p>
+
+<ol>
+  <li>Go to <a href="https://developer.apple.com/account/resources/authkeys/list" class="external" target="_blank">developer.apple.com → Keys</a></li>
+  <li>Click <strong>+</strong> next to "Keys"</li>
+  <li><strong>Key Name:</strong> e.g., <code>MaiCafe APNs Key</code> (no special chars)</li>
+  <li>Tick <strong>Apple Push Notifications service (APNs)</strong></li>
+  <li>Click <strong>Configure</strong> next to APNs:
+    <ul>
+      <li><strong>Environment:</strong> Sandbox &amp; Production (one key for both dev/TestFlight and App Store)</li>
+      <li><strong>Key Type:</strong> Team Scoped (All Topics) — simpler</li>
+    </ul>
+  </li>
+  <li>Save the config → click <strong>Continue</strong> → <strong>Register</strong></li>
+  <li>Click <strong>Download</strong> — a <code>.p8</code> file downloads</li>
+  <li>📋 <strong>Note down the Key ID</strong> (10 chars) — visible at top of page</li>
+</ol>
+
+<div class="callout callout-danger">
+  <strong>⚠️ One-Time Download</strong>
+  The <code>.p8</code> file can ONLY be downloaded once. Store it securely. If lost, revoke and create a new key.
+</div>
+
+<!-- ============== STEP 4 ============== -->
+<h2 id="step-4-firebase"><span class="step-badge">4</span>Firebase Setup (for Push)</h2>
+
+<p>Only needed if you use Firebase Cloud Messaging.</p>
+
+<h3>4.1 Confirm iOS app exists in Firebase</h3>
+<ol>
+  <li>Open <a href="https://console.firebase.google.com/" class="external" target="_blank">Firebase Console</a> → your project</li>
+  <li><strong>Project Settings</strong> (gear icon) → <strong>General</strong> tab → scroll to "Your apps"</li>
+  <li>Confirm an iOS app exists with the bundle ID matching Xcode</li>
+  <li>If missing: click <strong>Add app</strong> → iOS → enter bundle ID → download <code>GoogleService-Info.plist</code> → place in <code>ios/Runner/</code></li>
+</ol>
+
+<h3>4.2 Upload APNs key to Firebase</h3>
+<ol>
+  <li>Project Settings → <strong>Cloud Messaging</strong> tab</li>
+  <li>Scroll to <strong>Apple app configuration</strong></li>
+  <li>Click <strong>Upload</strong> under "APNs Authentication Key"</li>
+  <li>Fill in:
+    <ul>
+      <li><strong>APNs auth key file:</strong> select the <code>.p8</code></li>
+      <li><strong>Key ID:</strong> the 10-character ID from step 3.7</li>
+      <li><strong>Team ID:</strong> your Apple Team ID</li>
+    </ul>
+  </li>
+  <li>Click <strong>Upload</strong></li>
+  <li><strong>Repeat for Production slot</strong> if you see two slots (Development + Production). Same file, same key ID, same team ID.</li>
+</ol>
+
+<!-- ============== STEP 5 ============== -->
+<h2 id="step-5-xcode"><span class="step-badge">5</span>Xcode Configuration</h2>
+
+<h3>5.1 Open the project correctly</h3>
+<pre>cd ~/path/to/your/flutter_project
+open ios/Runner.xcworkspace</pre>
+
+<div class="callout callout-warning">
+  <strong>⚠️ Workspace, Not Project</strong>
+  Always open <code>Runner.xcworkspace</code> (white icon), NOT <code>Runner.xcodeproj</code> (blue icon). The workspace includes CocoaPods dependencies.
+</div>
+
+<h3>5.2 Find the Runner target</h3>
+<ol>
+  <li>Left sidebar → click the <strong>blue Runner icon</strong> at the top (project, not folder)</li>
+  <li>Center pane → left column shows <strong>PROJECT</strong> and <strong>TARGETS</strong></li>
+  <li>Under TARGETS → click <strong>Runner</strong> (not RunnerTests)</li>
+  <li>Top tabs → <strong>Signing &amp; Capabilities</strong></li>
+</ol>
+
+<h3>5.3 Set Team</h3>
+<ol>
+  <li>Click <strong>Team</strong> dropdown → select your client's team</li>
+  <li>If team doesn't appear: go to Xcode → Settings → Accounts and verify Apple ID is signed in with the right account</li>
+</ol>
+
+<h3>5.4 Add Capabilities</h3>
+<p>Click <strong>+ Capability</strong> button (top of Signing &amp; Capabilities tab) and add:</p>
+<ul>
+  <li><strong>Push Notifications</strong> (if using push)</li>
+  <li><strong>Background Modes</strong> → tick <strong>Remote notifications</strong> (if using push)</li>
+  <li><strong>Sign in with Apple</strong> (if used)</li>
+</ul>
+
+<h3>5.5 Add Info.plist entries</h3>
+<p>Edit <code>ios/Runner/Info.plist</code> and ensure these are present:</p>
+<pre>&lt;key&gt;UIBackgroundModes&lt;/key&gt;
+&lt;array&gt;
+  &lt;string&gt;remote-notification&lt;/string&gt;
+&lt;/array&gt;
+&lt;key&gt;ITSAppUsesNonExemptEncryption&lt;/key&gt;
+&lt;false/&gt;</pre>
+
+<p>Plus any usage descriptions for permissions you actually use (only add what's needed — Apple rejects fake declarations):</p>
+<pre>&lt;key&gt;NSCameraUsageDescription&lt;/key&gt;
+&lt;string&gt;Why your app needs the camera&lt;/string&gt;
+
+&lt;key&gt;NSPhotoLibraryUsageDescription&lt;/key&gt;
+&lt;string&gt;Why your app needs photos&lt;/string&gt;
+
+&lt;key&gt;NSLocationWhenInUseUsageDescription&lt;/key&gt;
+&lt;string&gt;Why your app needs location&lt;/string&gt;</pre>
+
+<!-- ============== PATH A ============== -->
+<h2 id="path-a"><span class="chip chip-path-a">PATH A</span> With iPhone — Automatic Signing</h2>
+
+<ol>
+  <li>Tick <strong>Automatically manage signing</strong> in Signing &amp; Capabilities</li>
+  <li>Connect your iPhone via USB. Trust the computer on the device.</li>
+  <li>Top toolbar → device dropdown → select your iPhone</li>
+  <li>Xcode auto-registers the device to the team. The "Communication with Apple failed" warning clears.</li>
+  <li>Status section should show:
+    <ul>
+      <li>Provisioning Profile: Xcode Managed Profile</li>
+      <li>Signing Certificate: Apple Development</li>
+      <li>No yellow warnings</li>
+    </ul>
+  </li>
+  <li>Press <strong>⌘R</strong> to build &amp; run on your iPhone for testing</li>
+</ol>
+
+<p>Continue to <a href="#step-6-build">Step 6: Pre-Build Checks</a>.</p>
+
+<!-- ============== PATH B ============== -->
+<h2 id="path-b"><span class="chip chip-path-b">PATH B</span> No iPhone — Manual Signing</h2>
+
+<p>This path skips automatic signing because it requires a registered device.</p>
+
+<h3>5B.1 Create iOS Distribution Certificate</h3>
+<ol>
+  <li>Xcode → menu <strong>Xcode → Settings</strong> (⌘,)</li>
+  <li><strong>Accounts</strong> tab → select your Apple ID</li>
+  <li>Right side → Teams section → select your team → click <strong>Manage Certificates…</strong></li>
+  <li>Bottom-left → <strong>+</strong> → <strong>Apple Distribution</strong></li>
+  <li>Wait ~5s — new "Apple Distribution" certificate appears</li>
+  <li>Click <strong>Done</strong></li>
+</ol>
+
+<h3>5B.2 Create App Store Provisioning Profile (manual)</h3>
+<ol>
+  <li>Go to <a href="https://developer.apple.com/account/resources/profiles/list" class="external" target="_blank">developer.apple.com → Profiles</a></li>
+  <li>Click <strong>+</strong> → under <strong>Distribution</strong> → select <strong>App Store Connect</strong> → Continue</li>
+  <li><strong>App ID:</strong> select your app (e.g., MaiCafe) → Continue</li>
+  <li><strong>Certificates:</strong> tick the Apple Distribution cert you just created → Continue</li>
+  <li><strong>Profile Name:</strong> e.g., <code>MaiCafe App Store</code> → Generate</li>
+  <li><strong>Download</strong> the <code>.mobileprovision</code> file</li>
+  <li><strong>Double-click</strong> the downloaded file to install it (no UI confirmation appears — that's normal)</li>
+</ol>
+
+<h3>5B.3 Configure Xcode for manual signing</h3>
+<ol>
+  <li>Back in Xcode → Runner target → Signing &amp; Capabilities</li>
+  <li><strong>Untick "Automatically manage signing"</strong> → confirm "Disable Automatic"</li>
+  <li>At the top of the tab → click <strong>Release</strong> filter button</li>
+  <li>In the Signing section:
+    <ul>
+      <li><strong>Team:</strong> your client's team</li>
+      <li><strong>Provisioning Profile:</strong> dropdown → select <code>MaiCafe App Store</code> (the one you created)</li>
+      <li><strong>Signing Certificate:</strong> auto-populates as Apple Distribution</li>
+    </ul>
+  </li>
+  <li>Click <strong>Debug</strong> filter button → set the same profile and team (works for both)</li>
+  <li>Status should now show no errors</li>
+</ol>
+
+<div class="callout callout-info">
+  <strong>ℹ️ Yellow Warnings Are OK</strong>
+  You may see "Communication with Apple failed" warnings — they're harmless for App Store builds because the archive uses your manual Distribution profile.
+</div>
+
+<!-- ============== STEP 6 ============== -->
+<h2 id="step-6-build"><span class="step-badge">6</span>Pre-Build Checks</h2>
+
+<h3>6.1 Version bump (if this isn't the first upload)</h3>
+<p>Edit <code>pubspec.yaml</code>. The format is <code>marketing_version+build_number</code>. Apple requires the build number to increase each upload:</p>
+<pre># First submission
+version: 1.0.0+1
+
+# Resubmitting after fix
+version: 1.0.0+2
+
+# Next marketing version
+version: 1.0.1+1</pre>
+
+<h3>6.2 Decide iPad support</h3>
+<p>Check <code>ios/Runner.xcodeproj/project.pbxproj</code>:</p>
+<pre>grep TARGETED_DEVICE_FAMILY ios/Runner.xcodeproj/project.pbxproj</pre>
+<ul>
+  <li><code>"1"</code> = iPhone only</li>
+  <li><code>"1,2"</code> = iPhone + iPad (requires iPad screenshots too)</li>
+  <li><code>"2"</code> = iPad only</li>
+</ul>
+<p>If your app isn't designed for iPad, set it to <code>"1"</code>. Otherwise you'll be forced to provide iPad screenshots and Apple may reject if iPad layout is broken.</p>
+
+<h3>6.3 Run pre-build commands</h3>
+<pre>cd ~/path/to/flutter_project
+flutter clean
+flutter pub get
+cd ios &amp;&amp; pod install &amp;&amp; cd ..
+flutter build ios --release --no-codesign</pre>
+
+<p><code>--no-codesign</code> lets Flutter compile without signing — Xcode signs during Archive.</p>
+
+<!-- ============== STEP 7 ============== -->
+<h2 id="step-7-archive"><span class="step-badge">7</span>Archive in Xcode</h2>
+
+<ol>
+  <li>In Xcode top toolbar → device dropdown → select <strong>"Any iOS Device (arm64)"</strong> (under "Build" section, NOT "Any iOS Simulator")</li>
+  <li>Mac menu bar → <strong>Product → Archive</strong></li>
+  <li>Wait 5–10 min — progress bar shows "Archiving Runner..."</li>
+  <li>When done, the <strong>Organizer</strong> window opens automatically</li>
+</ol>
+
+<div class="callout callout-warning">
+  <strong>⚠️ Xcode Cloud Popup</strong>
+  Xcode may prompt to set up Xcode Cloud — click <strong>"Don't Ask Again"</strong> or "Remind Me Later". Not needed for manual submissions.
+</div>
+
+<!-- ============== STEP 8 ============== -->
+<h2 id="step-8-upload"><span class="step-badge">8</span>Upload to App Store Connect</h2>
+
+<p>In the Organizer window:</p>
+
+<ol>
+  <li>Select your latest archive (top of list)</li>
+  <li>Top-right → <strong>Distribute App</strong></li>
+  <li><span class="chip chip-path-a">Path A only</span> If using automatic signing, select <strong>App Store Connect</strong> → Distribute → walk through with defaults</li>
+  <li><span class="chip chip-path-b">Path B</span> If using manual signing, select <strong>Custom</strong> → Distribute (this gives access to manual signing controls)</li>
+</ol>
+
+<h3>Wizard screens (Custom path)</h3>
+<ol>
+  <li><strong>Select a method:</strong> App Store Connect → Next</li>
+  <li><strong>Distribution options:</strong> keep defaults checked (Upload symbols, Manage version) → Next</li>
+  <li><strong>Select certificate and profiles:</strong>
+    <ul>
+      <li>Distribution certificate: Default (Apple Distribution)</li>
+      <li>Runner.app → dropdown → select your manual profile (e.g., <code>MaiCafe App Store</code>)</li>
+    </ul>
+  </li>
+  <li><strong>Review:</strong> verify Version, Profile, Certificate → click <strong>Upload</strong></li>
+  <li>Wait 2–5 min for upload</li>
+</ol>
+
+<h3>Keychain prompt during upload</h3>
+<p>You'll see a dialog: <em>"codesign wants to access key Apple Distribution in your keychain"</em>.</p>
+<ul>
+  <li>Type your <strong>Mac login password</strong></li>
+  <li>Click <strong>"Always Allow"</strong> (NOT "Allow", which prompts repeatedly; NOT "Deny", which fails the upload)</li>
+</ul>
+
+<h3>Apple processing</h3>
+<p>After "Upload Successful", Apple processes the build for 15–45 minutes. You'll get an email when it completes.</p>
+
+<!-- ============== STEP 9 ============== -->
+<h2 id="step-9-create-app"><span class="step-badge">9</span>Create App in App Store Connect</h2>
+
+<p>Skip this step if the app record already exists.</p>
+
+<ol>
+  <li>Go to <a href="https://appstoreconnect.apple.com/apps" class="external" target="_blank">App Store Connect → Apps</a></li>
+  <li>Top-right team selector → confirm correct team</li>
+  <li>Click <strong>+</strong> → <strong>New App</strong></li>
+  <li>Fill in:
+    <ul>
+      <li><strong>Platforms:</strong> ✅ iOS</li>
+      <li><strong>Name:</strong> Your app name as it will appear on App Store</li>
+      <li><strong>Primary Language:</strong> English (U.K.) or your locale</li>
+      <li><strong>Bundle ID:</strong> dropdown — select the one you registered in step 2</li>
+      <li><strong>SKU:</strong> internal unique ID (e.g., <code>MAICAFE001</code>)</li>
+      <li><strong>User Access:</strong> Full Access</li>
+    </ul>
+  </li>
+  <li>Click <strong>Create</strong></li>
+</ol>
+
+<!-- ============== STEP 10 ============== -->
+<h2 id="step-10-screenshots"><span class="step-badge">10</span>Screenshots</h2>
+
+<h3>Required sizes (as of 2024+)</h3>
+<table>
+  <thead>
+    <tr><th>Device</th><th>Resolution</th><th>Required?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>iPhone 6.9" (iPhone 16/17 Pro Max)</td><td>1320 × 2868</td><td>✅ Required</td></tr>
+    <tr><td>iPhone 6.5" (iPhone 11 Pro Max)</td><td>1242 × 2688</td><td>Optional (auto-derived)</td></tr>
+    <tr><td>iPad 13" (iPad Pro M4)</td><td>2064 × 2752</td><td>Required IF supporting iPad</td></tr>
+  </tbody>
+</table>
+
+<h3>10.1 Generate screenshots from iOS Simulator</h3>
+<pre># List available simulators
+xcrun simctl list devices available | grep "iPhone 16 Pro Max\|iPhone 17 Pro Max"
+
+# Boot the latest 6.9" simulator
+xcrun simctl boot &lt;UUID-of-iPhone-Pro-Max&gt;
+open -a Simulator
+
+# Build app for simulator
+flutter build ios --debug --simulator
+xcrun simctl install booted build/ios/iphonesimulator/Runner.app
+xcrun simctl launch booted &lt;your.bundle.id&gt;</pre>
+
+<p>Then navigate the app in the Simulator window and press <strong>⌘S</strong> on each screen to save the screenshot to your Desktop. Files save as <code>Simulator Screenshot - iPhone 17 Pro Max - YYYY-MM-DD at HH.MM.SS.png</code>.</p>
+
+<h3>10.2 Recommended screenshot order (first 3 show in search)</h3>
+<ol>
+  <li>Home / main screen — strongest first impression</li>
+  <li>Product/detail page — shows ordering flow</li>
+  <li>Cart / checkout — conversion point</li>
+  <li>Order tracking / confirmation</li>
+  <li>Login/Welcome (optional)</li>
+</ol>
+
+<h3>10.3 Upload via Media Manager</h3>
+<ol>
+  <li>App Store Connect → your app → iOS App 1.0 version page</li>
+  <li>Click <strong>View All Sizes in Media Manager</strong> (top-right of screenshots section)</li>
+  <li>Drag screenshots into the <strong>iPhone 6.9" Display</strong> section</li>
+  <li>If a 6.5" section auto-derives and shows a dimension warning, click <strong>Edit → Delete All</strong> for that section (6.5" is optional)</li>
+  <li>Return to version page</li>
+</ol>
+
+<!-- ============== STEP 11 ============== -->
+<h2 id="step-11-metadata"><span class="step-badge">11</span>Metadata &amp; URLs</h2>
+
+<p>On the iOS App 1.0 version page, fill in:</p>
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Limit</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Promotional Text</td>
+      <td>170 chars</td>
+      <td>Optional. Appears above description. Can be updated without re-review.</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>4,000 chars</td>
+      <td>Required. Marketing copy. Match app behavior — Apple checks for contradictions.</td>
+    </tr>
+    <tr>
+      <td>Keywords</td>
+      <td>100 chars</td>
+      <td>Comma-separated. Don't repeat words from app name (already indexed). E.g., <code>coffee,cafe,order,pickup,food,drinks,uk,takeaway</code></td>
+    </tr>
+    <tr>
+      <td>Support URL</td>
+      <td>—</td>
+      <td>Required. Must be HTTPS. Page must exist (no 404). Can use <code>https://site.com/#contact</code> anchor.</td>
+    </tr>
+    <tr>
+      <td>Marketing URL</td>
+      <td>—</td>
+      <td>Optional. App's homepage or landing page.</td>
+    </tr>
+    <tr>
+      <td>Version</td>
+      <td>—</td>
+      <td>Must match your build (e.g., <code>1.0</code>)</td>
+    </tr>
+    <tr>
+      <td>Copyright</td>
+      <td>200 chars</td>
+      <td>E.g., <code>© 2026 YOUR LTD</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Click <strong>Save</strong> at the top-right after filling.</p>
+
+<h3>11.1 Attach build</h3>
+<ol>
+  <li>Scroll to <strong>Build</strong> section</li>
+  <li>Click <strong>+ Add Build</strong> (only shows after Apple processed your upload — ~30 min)</li>
+  <li>Select your version (e.g., 1.0.0 (1)) → Done</li>
+</ol>
+
+<!-- ============== STEP 12 ============== -->
+<h2 id="step-12-privacy"><span class="step-badge">12</span>App Privacy Declarations</h2>
+
+<p>Left sidebar → <strong>App Privacy</strong></p>
+
+<h3>12.1 Privacy Policy URL</h3>
+<p>Required. Add the URL to your live privacy policy page.</p>
+
+<h3>12.2 Data Types — what to tick</h3>
+<p>Tick only what your app actually collects. For a typical café/ordering app:</p>
+
+<table>
+  <thead>
+    <tr><th>Category</th><th>Sub-type</th><th>Typical café app</th></tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="4">Contact Info</td><td>Name</td><td>✅ Yes (registration)</td></tr>
+    <tr><td>Email Address</td><td>✅ Yes (login)</td></tr>
+    <tr><td>Phone Number</td><td>✅ Yes (registration)</td></tr>
+    <tr><td>Physical Address</td><td>✅ If app stores addresses</td></tr>
+    <tr><td rowspan="2">Identifiers</td><td>User ID</td><td>✅ Yes (account ID)</td></tr>
+    <tr><td>Device ID</td><td>✅ Yes (FCM token)</td></tr>
+    <tr><td>Purchases</td><td>Purchase History</td><td>✅ Yes (order history)</td></tr>
+    <tr><td>Financial Info</td><td>Payment Info</td><td>❌ NO if payments are external (e.g., "Pay at Counter")</td></tr>
+    <tr><td>Location</td><td>Precise / Coarse</td><td>❌ NO unless using GPS</td></tr>
+    <tr><td>User Content</td><td>Emails or Text Messages</td><td>❌ NO (this is message CONTENT, not email addresses)</td></tr>
+    <tr><td>Usage Data</td><td>Product Interaction</td><td>❌ NO if analytics disabled</td></tr>
+    <tr><td>Diagnostics</td><td>Crash Data</td><td>❌ NO unless using Crashlytics</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-warning">
+  <strong>⚠️ "Email Address" vs "Emails or Text Messages"</strong>
+  These names confuse people. <strong>Email Address</strong> (Contact Info) = the user's email for login. <strong>Emails or Text Messages</strong> (User Content) = the BODY of emails/SMS your app reads. Most apps only need the first.
+</div>
+
+<h3>12.3 For each ticked data type, answer 3 questions</h3>
+<p>For most apps the answers are identical for every data type:</p>
+<table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>How is this data used?</td><td>✅ App Functionality only</td></tr>
+    <tr><td>Linked to user's identity?</td><td>✅ Yes</td></tr>
+    <tr><td>Used to track user?</td><td>❌ No (unless sharing with ad networks)</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-danger">
+  <strong>⚠️ Tracking</strong>
+  Saying YES to tracking shows an alarming "Data Used to Track You" badge on your App Store listing. Only say YES if you genuinely share data with third-party advertisers or data brokers.
+</div>
+
+<h3>12.4 Publish</h3>
+<p>Click <strong>Publish</strong> (top-right) when all data types are set up and show green checkmarks.</p>
+
+<!-- ============== STEP 13 ============== -->
+<h2 id="step-13-rating"><span class="step-badge">13</span>Age Rating</h2>
+
+<p>Left sidebar → <strong>App Information</strong> → scroll to <strong>Age Ratings</strong> → click <strong>Edit</strong></p>
+
+<p>For most non-game business apps, answer <strong>None</strong> or <strong>No</strong> to every question across all 7 steps. Result: <strong>4+</strong> rating.</p>
+
+<p>Final step asks about:</p>
+<ul>
+  <li><strong>Age Categories and Override:</strong> Not Applicable</li>
+  <li><strong>Made for Kids:</strong> No (unless app is specifically for kids)</li>
+</ul>
+
+<!-- ============== STEP 14 ============== -->
+<h2 id="step-14-pricing"><span class="step-badge">14</span>Pricing &amp; Availability</h2>
+
+<p>Left sidebar → <strong>Pricing and Availability</strong></p>
+
+<h3>Price</h3>
+<ol>
+  <li>Click <strong>Add Pricing</strong></li>
+  <li>Select <strong>Free</strong> (or set a price)</li>
+  <li>Start date: today</li>
+</ol>
+
+<h3>Availability</h3>
+<ol>
+  <li>Click <strong>Set Up Availability</strong></li>
+  <li>Either <strong>Select All</strong> or pick specific countries</li>
+  <li>For local businesses (e.g., UK café): consider just the country/countries where the business operates</li>
+</ol>
+
+<h3>Apple Silicon Macs</h3>
+<p>Scroll to <strong>iPhone and iPad Apps on Apple Silicon Macs</strong> — for most business apps, disable this (your iPhone app makes little sense on a desktop Mac).</p>
+
+<!-- ============== STEP 15 ============== -->
+<h2 id="step-15-review-info"><span class="step-badge">15</span>App Review Information</h2>
+
+<p>Back on the version page, scroll to <strong>App Review Information</strong>:</p>
+
+<h3>15.1 Sign-In Information</h3>
+<ul>
+  <li>✅ Tick <strong>Sign-in required</strong></li>
+  <li><strong>User name:</strong> demo account email</li>
+  <li><strong>Password:</strong> demo account password</li>
+</ul>
+
+<div class="callout callout-warning">
+  <strong>⚠️ Demo Account Must Be Pre-Verified</strong>
+  Log in to your app with these credentials BEFORE submitting. If OTP is triggered, the account isn't fully verified — Apple reviewers can't access email OTPs and will reject the app.
+</div>
+
+<h3>15.2 Contact Information</h3>
+<p>Your details (or client's) — Apple emails you here if there's a problem during review.</p>
+
+<h3>15.3 Notes</h3>
+<p>Critical field — gives reviewers context. Template:</p>
+<pre>Thank you for reviewing [App Name].
+
+ABOUT THE APP
+[1-2 sentences describing what the app does and who it's for]
+
+HOW TO TEST
+1. Open the app. Tap "Get Started" on the welcome screen.
+2. On the login screen, enter:
+   Email: [demo email]
+   Password: [demo password]
+3. The account is pre-verified, so no OTP is required.
+4. [Describe key flows reviewer should try]
+
+NOTES
+- [Anything the reviewer should know]
+- [E.g., "App is pickup-only. Delivery is shown as 'Coming soon' and intentionally disabled."]
+- [E.g., "No financial transactions occur in the app — payment is handled at the counter."]
+
+CONTACT
+Email: [your email]
+Phone: [your phone]</pre>
+
+<h3>15.4 App Store Version Release</h3>
+<p>Recommended: <strong>Manually release this version</strong>. After Apple approves, you click a "Release This Version" button when you/the client are ready. Avoids surprise launches at unexpected times.</p>
+
+<!-- ============== STEP 16 ============== -->
+<h2 id="step-16-submit"><span class="step-badge">16</span>Submit for Review</h2>
+
+<ol>
+  <li>Top-right of version page → click <strong>Add for Review</strong></li>
+  <li>If button is greyed out, hover the icon next to each section — it'll show what's missing</li>
+  <li>A "Draft Submission" panel slides in from the right</li>
+  <li>Click <strong>Submit for Review</strong></li>
+  <li>Answer any final questions:
+    <ul>
+      <li><strong>Export Compliance (encryption)?</strong> No (since you set <code>ITSAppUsesNonExemptEncryption = false</code>)</li>
+      <li><strong>Third-party content?</strong> No</li>
+      <li><strong>Advertising Identifier (IDFA)?</strong> No (unless you actually use it)</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Status changes to <strong>"Waiting for Review"</strong>. 🎉</p>
+
+<!-- ============== TROUBLESHOOTING ============== -->
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3>"Communication with Apple failed: no devices"</h3>
+<p><strong>Cause:</strong> Automatic signing wants a development profile, which requires a registered iOS device.</p>
+<p><strong>Fix:</strong> Switch to <a href="#path-b">Path B: Manual Signing</a>. The warning is harmless for App Store builds anyway.</p>
+
+<h3>"No profiles for 'com.x.y' were found"</h3>
+<p><strong>Cause:</strong> The bundle ID isn't registered in the developer portal under the current team.</p>
+<p><strong>Fix:</strong> Register the App ID (Step 2). Make sure you're in the correct team.</p>
+
+<h3>"Cloud signing permission error" during upload</h3>
+<p><strong>Cause:</strong> Wizard tried to use Xcode-managed automatic signing but you don't have permission for cloud certs.</p>
+<p><strong>Fix:</strong> Distribute via <strong>Custom</strong> path (not "App Store Connect" default) → select <strong>Manually manage signing</strong> → pick your manual Distribution profile.</p>
+
+<h3>"You must upload a screenshot for 13-inch iPad displays"</h3>
+<p><strong>Cause:</strong> Your build was compiled with <code>TARGETED_DEVICE_FAMILY = "1,2"</code> (supports iPad).</p>
+<p><strong>Fix:</strong> Change to <code>"1"</code> in <code>project.pbxproj</code>, bump build number in <code>pubspec.yaml</code>, rebuild &amp; re-upload.</p>
+
+<h3>Keychain dialog keeps appearing</h3>
+<p><strong>Cause:</strong> You clicked "Allow" instead of "Always Allow".</p>
+<p><strong>Fix:</strong> Each time, click <strong>"Always Allow"</strong>. After the first one, it should stop asking.</p>
+
+<h3>Build doesn't appear in App Store Connect after upload</h3>
+<p><strong>Cause:</strong> Apple is still processing (15–45 min, sometimes 2h during peak).</p>
+<p><strong>Fix:</strong> Wait for the "Your build is ready" email. If it's been &gt; 2h and no email, check email spam folder, or contact App Store Connect support.</p>
+
+<h3>"Missing Push Notification Entitlement" email warning</h3>
+<p><strong>Cause:</strong> False positive from Apple's automated scan when you have FCM but don't actually use background pushes.</p>
+<p><strong>Fix:</strong> Ignore the email — the actual entitlement is present in your build (you added Push Notifications capability). This warning doesn't block submission.</p>
+
+<h3>App Review rejected — "Demo account doesn't work"</h3>
+<p><strong>Cause:</strong> Account requires email OTP at login that reviewer can't access.</p>
+<p><strong>Fix:</strong> Pre-verify the account in your production system. Or create a backdoor "magic OTP" that always works for that specific email. Add details to review notes.</p>
+
+<!-- ============== POST-SUBMIT ============== -->
+<h2 id="post-submit">Post-Submission</h2>
+
+<h3>Status timeline</h3>
+<ul>
+  <li><strong>Waiting for Review</strong> — submitted, in queue (typically &lt; 24h)</li>
+  <li><strong>In Review</strong> — reviewer is actively checking (typically a few hours)</li>
+  <li><strong>Pending Developer Release</strong> — approved! Click "Release This Version" when ready</li>
+  <li><strong>Rejected</strong> — Apple opened Resolution Center with feedback</li>
+  <li><strong>Ready for Sale</strong> — live on App Store</li>
+</ul>
+
+<h3>If rejected</h3>
+<ol>
+  <li>Go to App Store Connect → app → <strong>Resolution Center</strong> on left sidebar</li>
+  <li>Read Apple's specific reason</li>
+  <li>Fix the issue (could be metadata, code, or just an explanation)</li>
+  <li>For metadata-only fixes: edit text/screenshots → resubmit (no new build needed)</li>
+  <li>For binary fixes: bump build number, rebuild, upload, attach new build, resubmit</li>
+  <li>You can also <strong>reply</strong> in Resolution Center if you disagree or need clarification — reviewers usually respond within 24h</li>
+</ol>
+
+<!-- ============== UPDATES ============== -->
+<h2 id="updates">Releasing Updates</h2>
+
+<h3>For minor changes (no code change — text/screenshots/etc.)</h3>
+<ol>
+  <li>App Store Connect → your app → click <strong>+ Version or Platform</strong> on left sidebar → iOS</li>
+  <li>Enter new version (e.g., 1.0.1)</li>
+  <li>Update text/screenshots as needed</li>
+  <li>No need to re-attach a build if you're not changing code (but most updates do change code)</li>
+  <li>Submit for Review</li>
+</ol>
+
+<h3>For code updates</h3>
+<ol>
+  <li>Bump version in <code>pubspec.yaml</code> (e.g., 1.0.0+1 → 1.0.1+1)</li>
+  <li>Make your code changes</li>
+  <li>Repeat steps 6–8 (build, archive, upload)</li>
+  <li>Create new version in App Store Connect</li>
+  <li>Attach new build</li>
+  <li>Update "What's New in This Version" text</li>
+  <li>Submit for Review</li>
+</ol>
+
+<div class="callout callout-tip">
+  <strong>💡 Phased Release</strong>
+  For updates, consider enabling <strong>Phased Release for Automatic Updates</strong> in the version page. It rolls out over 7 days to ~1%, 2%, 5%, 10%, 20%, 50%, 100% — minimizing impact if there's a bug.
+</div>
+
+<!-- ============== FINAL CHECKLIST ============== -->
+<h2 id="checklist">Final Pre-Submission Checklist</h2>
+
+<p>Before clicking "Submit for Review", verify:</p>
+
+<ul class="checklist">
+  <li><strong>Build attached</strong> — version shows in Build section, no "Add Build" placeholder</li>
+  <li><strong>Screenshots</strong> — at least 3 for 6.9" iPhone, all show real app screens</li>
+  <li><strong>Description</strong> — matches actual app behavior (no "delivery" if pickup-only)</li>
+  <li><strong>Demo credentials work</strong> — you've tested login yourself</li>
+  <li><strong>Privacy Policy URL</strong> — loads successfully (test in incognito browser)</li>
+  <li><strong>Support URL</strong> — loads successfully</li>
+  <li><strong>App Privacy</strong> — all data types declared, no false declarations</li>
+  <li><strong>Age Rating</strong> — questionnaire complete</li>
+  <li><strong>Category</strong> — set to most appropriate</li>
+  <li><strong>Pricing</strong> — Free (or correct price), at least one country selected</li>
+  <li><strong>Review notes</strong> — detailed enough that a non-domain-expert reviewer can navigate the app</li>
+  <li><strong>Release setting</strong> — Manually release (recommended for v1.0)</li>
+  <li><strong>Copyright</strong> — current year and correct entity name</li>
+  <li><strong>Subtitle</strong> — concise value prop (optional but helps conversion)</li>
+</ul>
+
+<hr style="margin: 60px 0 30px; border: 0; border-top: 1px solid #d2d2d7;">
+
+<p style="text-align: center; color: #86868b; font-size: 14px;">
+  Last updated: May 2026 · Based on Xcode 16 / Flutter 3.35 / App Store Connect 2026 UI
+</p>
+
+</main>
+
+</body>
+</html>
