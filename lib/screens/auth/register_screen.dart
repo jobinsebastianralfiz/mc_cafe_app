@@ -9,7 +9,6 @@ import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/pattern_background.dart';
-import '../../widgets/social_login_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -69,14 +68,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-  }
-
-  void _handleGoogleLogin() {
-    // TODO: Implement Google login
-  }
-
-  void _handleAppleLogin() {
-    // TODO: Implement Apple login
   }
 
   void _handleLogin() {
@@ -242,36 +233,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: AppColors.primary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: screenHeight * 0.04),
-
-                  // Or continue with
-                  Text(
-                    'Or continue with',
-                    style: TextStyle(
-                      fontFamily: 'Sora',
-                      fontSize: 14,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Social login buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SocialLoginButton(
-                        type: SocialLoginType.google,
-                        onPressed: _handleGoogleLogin,
-                      ),
-                      const SizedBox(width: 20),
-                      SocialLoginButton(
-                        type: SocialLoginType.apple,
-                        onPressed: _handleAppleLogin,
                       ),
                     ],
                   ),

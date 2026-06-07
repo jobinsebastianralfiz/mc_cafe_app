@@ -7,7 +7,7 @@ class AppConfig {
 
   // ============== App Info ==============
   /// Application name
-  static const String appName = 'MC Cafe';
+  static const String appName = 'MAICAFE';
 
   /// Application tagline
   static const String appTagline = 'A Taste Worth Savouring';
@@ -80,10 +80,10 @@ class AppConfig {
 
   // ============== Currency ==============
   /// Currency symbol
-  static const String currencySymbol = '₹';
+  static const String currencySymbol = '£';
 
   /// Currency code
-  static const String currencyCode = 'INR';
+  static const String currencyCode = 'GBP';
 
   /// Decimal places for currency
   static const int currencyDecimalPlaces = 2;
@@ -126,14 +126,14 @@ class AppConfig {
 
   // ============== Support ==============
   /// Support email
-  static const String supportEmail = 'support@mccafe.com';
+  static const String supportEmail = 'info@maicafe.co.uk';
 
   /// Support phone
-  static const String supportPhone = '+91 XXXXXXXXXX';
+  static const String supportPhone = '+447939256855';
 
   /// Privacy policy URL
-  static const String privacyPolicyUrl = 'https://mccafe.com/privacy';
+  static const String privacyPolicyUrl = 'https://maicafe.co.uk/privacy/';
 
   /// Terms and conditions URL
-  static const String termsUrl = 'https://mccafe.com/terms';
+  static const String termsUrl = 'https://maicafe.co.uk/terms-of-service/';
 }

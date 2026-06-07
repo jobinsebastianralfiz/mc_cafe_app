@@ -9,7 +9,6 @@ import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/pattern_background.dart';
-import '../../widgets/social_login_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -40,12 +39,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!mounted) return;
 
     if (success) {
-      _showSnackBar('Password reset link sent to your email');
-      // Navigate back to login after success
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      _showSnackBar('OTP sent to your email');
+      // Navigate to reset password screen with OTP + new password
+      Navigator.pushNamed(
+        context,
+        AppRoutes.resetPassword,
+        arguments: {'email': _emailController.text.trim()},
+      );
     } else {
       _showSnackBar(
-        authProvider.errorMessage ?? 'Failed to send reset link',
+        authProvider.errorMessage ?? 'Failed to send OTP',
         isError: true,
       );
     }
@@ -59,14 +62,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-  }
-
-  void _handleGoogleLogin() {
-    // TODO: Implement Google login
-  }
-
-  void _handleAppleLogin() {
-    // TODO: Implement Apple login
   }
 
   void _handleLogin() {
@@ -190,36 +185,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             color: AppColors.primary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: screenHeight * 0.04),
-
-                  // Or continue with
-                  Text(
-                    'Or continue with',
-                    style: TextStyle(
-                      fontFamily: 'Sora',
-                      fontSize: 14,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Social login buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SocialLoginButton(
-                        type: SocialLoginType.google,
-                        onPressed: _handleGoogleLogin,
-                      ),
-                      const SizedBox(width: 20),
-                      SocialLoginButton(
-                        type: SocialLoginType.apple,
-                        onPressed: _handleAppleLogin,
                       ),
                     ],
                   ),

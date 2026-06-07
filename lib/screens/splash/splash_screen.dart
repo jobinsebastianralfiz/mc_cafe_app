@@ -52,6 +52,12 @@ class _SplashScreenState extends State<SplashScreen> {
     Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
+  void _handleBrowseAsGuest() {
+    // Enter guest mode — browse freely; account actions will prompt for login.
+    context.read<AuthProvider>().continueAsGuest();
+    Navigator.pushReplacementNamed(context, AppRoutes.home);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -137,6 +143,22 @@ class _SplashScreenState extends State<SplashScreen> {
                     CustomButton(
                       text: 'Get Started',
                       onPressed: _handleGetStarted,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Browse as Guest — skip login and explore the menu
+                    TextButton(
+                      onPressed: _handleBrowseAsGuest,
+                      child: Text(
+                        'Browse as Guest',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.accent,
+                        ),
+                      ),
                     ),
 
                     SizedBox(height: screenHeight * 0.05),

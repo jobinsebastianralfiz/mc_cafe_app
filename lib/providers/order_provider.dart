@@ -59,9 +59,6 @@ class OrderProvider extends ChangeNotifier {
     String? deliveryAddress,
     String? notes,
   }) async {
-    debugPrint('🔵 [OrderProvider] checkout called');
-    debugPrint('🔵 [OrderProvider] orderType: $orderType, paymentMethod: $paymentMethod');
-
     _checkoutStatus = LoadingStatus.loading;
     _clearError();
     notifyListeners();
@@ -76,19 +73,16 @@ class OrderProvider extends ChangeNotifier {
 
       _lastCheckoutResult = result;
       _currentOrder = result.order;
-      debugPrint('🟢 [OrderProvider] Checkout successful, orderId: ${result.order.id}');
       _checkoutStatus = LoadingStatus.success;
       notifyListeners();
       return result;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
-      _setError(e.message);
+      _setError('${e.message} [${e.statusCode}]');
       _checkoutStatus = LoadingStatus.error;
       notifyListeners();
       return null;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
-      _setError('Failed to place order');
+      _setError('Failed to place order: $e');
       _checkoutStatus = LoadingStatus.error;
       notifyListeners();
       return null;
@@ -99,8 +93,6 @@ class OrderProvider extends ChangeNotifier {
 
   /// Load orders list
   Future<void> loadOrders({bool refresh = false}) async {
-    debugPrint('🔵 [OrderProvider] loadOrders called, refresh: $refresh');
-
     if (_status == LoadingStatus.loading && !refresh) return;
 
     if (refresh) {
@@ -124,14 +116,11 @@ class OrderProvider extends ChangeNotifier {
       }
       _pagination = result.pagination;
 
-      debugPrint('🟢 [OrderProvider] Orders loaded: ${_orders.length}');
       _status = LoadingStatus.success;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to load orders');
       _status = LoadingStatus.error;
     }
@@ -149,26 +138,21 @@ class OrderProvider extends ChangeNotifier {
 
   /// Load order details
   Future<Order?> loadOrderDetails(int orderId) async {
-    debugPrint('🔵 [OrderProvider] loadOrderDetails called, orderId: $orderId');
-
     _detailsStatus = LoadingStatus.loading;
     _clearError();
     notifyListeners();
 
     try {
       _currentOrder = await _repository.getOrderDetails(orderId);
-      debugPrint('🟢 [OrderProvider] Order details loaded');
       _detailsStatus = LoadingStatus.success;
       notifyListeners();
       return _currentOrder;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       _detailsStatus = LoadingStatus.error;
       notifyListeners();
       return null;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to load order details');
       _detailsStatus = LoadingStatus.error;
       notifyListeners();
@@ -180,26 +164,21 @@ class OrderProvider extends ChangeNotifier {
 
   /// Track order status
   Future<OrderTrackingInfo?> trackOrder(int orderId) async {
-    debugPrint('🔵 [OrderProvider] trackOrder called, orderId: $orderId');
-
     _trackingStatus = LoadingStatus.loading;
     _clearError();
     notifyListeners();
 
     try {
       _trackingInfo = await _repository.trackOrder(orderId);
-      debugPrint('🟢 [OrderProvider] Tracking info loaded');
       _trackingStatus = LoadingStatus.success;
       notifyListeners();
       return _trackingInfo;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       _trackingStatus = LoadingStatus.error;
       notifyListeners();
       return null;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to track order');
       _trackingStatus = LoadingStatus.error;
       notifyListeners();
@@ -211,8 +190,6 @@ class OrderProvider extends ChangeNotifier {
 
   /// Cancel an order
   Future<bool> cancelOrder(int orderId) async {
-    debugPrint('🔵 [OrderProvider] cancelOrder called, orderId: $orderId');
-
     try {
       final success = await _repository.cancelOrder(orderId);
       if (success) {
@@ -222,16 +199,13 @@ class OrderProvider extends ChangeNotifier {
           // Refresh orders list to get updated status
           await loadOrders(refresh: true);
         }
-        debugPrint('🟢 [OrderProvider] Order cancelled');
       }
       return success;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to cancel order');
       notifyListeners();
       return false;
@@ -242,19 +216,14 @@ class OrderProvider extends ChangeNotifier {
 
   /// Reorder items from a previous order
   Future<ReorderResult?> reorder(int orderId) async {
-    debugPrint('🔵 [OrderProvider] reorder called, orderId: $orderId');
-
     try {
       final result = await _repository.reorder(orderId);
-      debugPrint('🟢 [OrderProvider] Reorder successful: ${result.addedItems} items added');
       return result;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       notifyListeners();
       return null;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to reorder');
       notifyListeners();
       return null;
@@ -265,20 +234,16 @@ class OrderProvider extends ChangeNotifier {
 
   /// Get order by token number
   Future<Order?> getOrderByToken(int token, String date) async {
-    debugPrint('🔵 [OrderProvider] getOrderByToken called');
-
     try {
       final order = await _repository.getOrderByToken(token, date);
       _currentOrder = order;
       notifyListeners();
       return order;
     } on ApiException catch (e) {
-      debugPrint('🔴 [OrderProvider] ApiException: ${e.message}');
       _setError(e.message);
       notifyListeners();
       return null;
     } catch (e) {
-      debugPrint('🔴 [OrderProvider] Error: $e');
       _setError('Failed to find order');
       notifyListeners();
       return null;

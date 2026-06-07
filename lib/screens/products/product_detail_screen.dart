@@ -6,8 +6,10 @@ import 'package:shimmer/shimmer.dart';
 import '../../config/theme/app_colors.dart';
 import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/auth_guard.dart';
 import '../../data/models/product_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/product_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
@@ -23,26 +25,73 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _selectedVariantIndex = 0; // Default to first variant
-  final Set<int> _selectedExtras = {};
+  final Set<int> _selectedAddonIds = {};
   bool _isAddedToCart = false;
+  Product? _fullProduct;
+  bool _isLoadingDetail = false;
 
   // Fallback sizes when product has no variants
   final List<String> _fallbackSizes = ['S', 'M', 'L'];
 
-  final List<Map<String, dynamic>> _extras = [
-    {'name': 'Extra Shot', 'price': 0.50},
-    {'name': 'Almond Milk', 'price': 0.60},
-    {'name': 'Caramel Syrup', 'price': 0.40},
-    {'name': 'Vanilla', 'price': 0.40},
-    {'name': 'Hazelnut', 'price': 0.45},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProductDetail();
+    });
+  }
 
-  // Get Product object if available
+  Future<void> _loadProductDetail() async {
+    final slug = widget.product?['slug'] as String?;
+    if (slug == null) return;
+
+    setState(() => _isLoadingDetail = true);
+
+    try {
+      final productProvider = context.read<ProductProvider>();
+      await productProvider.loadProductDetail(slug);
+      if (mounted) {
+        setState(() {
+          _fullProduct = productProvider.selectedProduct;
+          _isLoadingDetail = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoadingDetail = false);
+      }
+    }
+  }
+
+  // Get Product object — prefer full product (has addons) over passed product
   Product? get _productModel {
+    if (_fullProduct != null) return _fullProduct;
     if (widget.product != null && widget.product!['product'] is Product) {
       return widget.product!['product'] as Product;
     }
     return null;
+  }
+
+  // Addon groups from product (only groups that actually have addons)
+  List<AddonGroup> get _addonGroups =>
+      _productModel?.addonGroups
+          ?.where((g) => g.addons.isNotEmpty)
+          .toList() ??
+      [];
+
+  bool get _hasAddons => _addonGroups.isNotEmpty;
+
+  // Get all selected addons as Addon objects
+  List<Addon> get _selectedAddons {
+    final addons = <Addon>[];
+    for (final group in _addonGroups) {
+      for (final addon in group.addons) {
+        if (_selectedAddonIds.contains(addon.id)) {
+          addons.add(addon);
+        }
+      }
+    }
+    return addons;
   }
 
   // Check if product has variants
@@ -111,20 +160,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   double get _totalPrice {
     double base = _productPrice;
-    double extrasTotal = 0;
-    for (int index in _selectedExtras) {
-      extrasTotal += _extras[index]['price'];
+    double addonsTotal = 0;
+    for (final addon in _selectedAddons) {
+      addonsTotal += addon.priceAsDouble;
     }
-    return base + extrasTotal;
+    return base + addonsTotal;
   }
 
   void _toggleWishlist() async {
-    debugPrint('🔵 [ProductDetail] _toggleWishlist called');
-    debugPrint('🔵 [ProductDetail] _productModel: $_productModel');
-    debugPrint('🔵 [ProductDetail] widget.product: ${widget.product}');
+    // Wishlist is account-based — guests must log in first.
+    if (!AuthGuard.requireAuth(context, action: 'save items to your wishlist')) {
+      return;
+    }
 
     if (_productModel == null) {
-      debugPrint('🔴 [ProductDetail] _productModel is null! Cannot toggle wishlist.');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error: Product data not available'),
@@ -134,16 +183,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
-    debugPrint('🔵 [ProductDetail] Product ID: ${_productModel!.id}, Name: ${_productModel!.name}');
-
     final wishlistProvider = context.read<WishlistProvider>();
     final wasInWishlist = wishlistProvider.isInWishlist(_productModel!.id);
 
-    debugPrint('🔵 [ProductDetail] wasInWishlist: $wasInWishlist');
-
     await wishlistProvider.toggleWishlist(_productModel!);
-
-    debugPrint('🟢 [ProductDetail] toggleWishlist completed');
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -160,16 +203,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   void _addToCart() async {
-    debugPrint('🔵 [ProductDetail] _addToCart called');
+    // Add to Cart is account-based — guests must log in first.
+    if (!AuthGuard.requireAuth(context, action: 'add items to your cart')) {
+      return;
+    }
 
     if (_productModel == null) {
-      debugPrint('🔴 [ProductDetail] _productModel is null!');
       return;
     }
 
     // Check if variant is required but not selected
     if (_productModel!.hasVariants && _variants.isEmpty) {
-      debugPrint('🔴 [ProductDetail] Product requires variants but none available');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('This product requires a size selection'),
@@ -181,13 +225,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     final cartProvider = context.read<CartProvider>();
 
-    debugPrint('🔵 [ProductDetail] Adding to cart: ${_productModel!.name}');
-    debugPrint('🔵 [ProductDetail] hasVariants: ${_productModel!.hasVariants}');
-    debugPrint('🔵 [ProductDetail] selectedVariant: ${_selectedVariant?.name} (id: ${_selectedVariant?.id})');
-
     final success = await cartProvider.addToCart(
       product: _productModel!,
       variant: _selectedVariant,
+      addons: _selectedAddons.isNotEmpty ? _selectedAddons : null,
     );
 
     if (success && mounted) {
@@ -333,7 +374,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildProductImage() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: AppConstants.paddingL),
-      height: 200,
+      height: 260,
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFF2C2C2C),
@@ -544,6 +585,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildExtrasSection() {
+    // Show nothing if product has no addon groups
+    if (!_hasAddons) {
+      if (_isLoadingDetail) {
+        // Show shimmer while loading full product detail
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 120,
+              height: 16,
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 100,
+              child: Row(
+                children: List.generate(3, (index) {
+                  return Container(
+                    width: 110,
+                    margin: EdgeInsets.only(right: index < 2 ? 12 : 0),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        );
+      }
+      return const SizedBox.shrink();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -558,7 +636,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Customize your menu your way',
+          'Customize your order',
           style: TextStyle(
             fontFamily: 'Sora',
             fontSize: 12,
@@ -566,25 +644,91 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ),
         const SizedBox(height: 16),
+        for (final group in _addonGroups) ...[
+          _buildAddonGroup(group),
+          const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildAddonGroup(AddonGroup group) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              group.name,
+              style: const TextStyle(
+                fontFamily: 'Sora',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textHeading,
+              ),
+            ),
+            if (group.isRequired) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'Required',
+                  style: TextStyle(
+                    fontFamily: 'Sora',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.error,
+                  ),
+                ),
+              ),
+            ],
+            if (group.isSingleSelect) ...[
+              const SizedBox(width: 6),
+              Text(
+                '(Pick one)',
+                style: TextStyle(
+                  fontFamily: 'Sora',
+                  fontSize: 11,
+                  color: AppColors.grey.withOpacity(0.8),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 10),
         SizedBox(
           height: 100,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: _extras.length,
+            itemCount: group.addons.length,
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final extra = _extras[index];
-              final isSelected = _selectedExtras.contains(index);
+              final addon = group.addons[index];
+              final isSelected = _selectedAddonIds.contains(addon.id);
               return _buildExtraCard(
-                name: extra['name'],
-                price: extra['price'],
+                name: addon.name,
+                price: addon.priceAsDouble,
                 isSelected: isSelected,
                 onTap: () {
                   setState(() {
-                    if (isSelected) {
-                      _selectedExtras.remove(index);
+                    if (group.isSingleSelect) {
+                      // Deselect all addons in this group first
+                      for (final a in group.addons) {
+                        _selectedAddonIds.remove(a.id);
+                      }
+                      if (!isSelected) {
+                        _selectedAddonIds.add(addon.id);
+                      }
                     } else {
-                      _selectedExtras.add(index);
+                      if (isSelected) {
+                        _selectedAddonIds.remove(addon.id);
+                      } else {
+                        _selectedAddonIds.add(addon.id);
+                      }
                     }
                   });
                 },

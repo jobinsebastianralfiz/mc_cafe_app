@@ -1,0 +1,848 @@
+================================================================================
+                    MAICAFE APP DEPLOYMENT GUIDE
+                    iOS App Store, TestFlight & Android Play Store
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. 16KB Policy Compatibility Check
+2. Prerequisites
+3. iOS Deployment (App Store & TestFlight)
+4. Android Deployment (Play Store)
+5. Common Issues & Solutions
+6. Quick Commands Reference
+
+================================================================================
+1. 16KB POLICY COMPATIBILITY CHECK
+================================================================================
+
+WHAT IS 16KB POLICY?
+--------------------
+- Apple (iOS 14.5+): Requires apps to support 16KB memory page size for
+  Apple Silicon Macs and future iOS devices.
+- Android 15+: Introduces 16KB page size support for better performance.
+
+YOUR APP'S PACKAGES STATUS:
+---------------------------
+| Package                      | Status | Notes                          |
+|------------------------------|--------|--------------------------------|
+| provider (^6.1.2)            | ✅     | Pure Dart, no native code      |
+| http (^1.2.2)                | ✅     | Dart team maintained           |
+| shared_preferences (^2.3.3)  | ✅     | Flutter team maintained        |
+| cached_network_image (^3.4.1)| ✅     | Updated for 16KB               |
+| flutter_local_notifications  | ✅     | v18+ is 16KB compliant         |
+| shimmer (^3.0.0)             | ✅     | Pure Dart                      |
+| cupertino_icons (^1.0.8)     | ✅     | Flutter maintained             |
+
+RESULT: ✅ ALL PACKAGES ARE 16KB POLICY COMPLIANT
+
+================================================================================
+2. PREREQUISITES
+================================================================================
+
+FOR iOS DEPLOYMENT:
+-------------------
+□ Apple Developer Account ($99/year) - https://developer.apple.com
+□ Xcode (latest version) installed on Mac
+□ Valid Apple ID added to Xcode
+□ App Store Connect access
+□ Privacy Policy URL (required)
+□ App screenshots for all required device sizes
+
+FOR ANDROID DEPLOYMENT:
+-----------------------
+□ Google Play Developer Account ($25 one-time) - https://play.google.com/console
+□ Android Studio (optional, for debugging)
+□ Keystore file for signing (create if not exists)
+□ Privacy Policy URL (required)
+□ App screenshots and feature graphic
+
+================================================================================
+3. iOS DEPLOYMENT (APP STORE & TESTFLIGHT)
+================================================================================
+
+STEP 1: CONFIGURE iOS PROJECT
+-----------------------------
+1. Open terminal and navigate to project:
+   cd /Users/jobinsebastian/StudioProjects/mc_cafe_app
+
+2. Open iOS project in Xcode:
+   open ios/Runner.xcworkspace
+
+3. In Xcode:
+   - Select "Runner" in the left navigator
+   - Select "Runner" under TARGETS
+   - Go to "Signing & Capabilities" tab
+   - Set "Team" to your Apple Developer account
+   - Set "Bundle Identifier" (e.g., com.maicafe.app)
+   - Ensure "Automatically manage signing" is checked
+
+STEP 2: UPDATE APP VERSION
+--------------------------
+Edit pubspec.yaml:
+   version: 1.0.0+1
+
+Format: VERSION+BUILD_NUMBER
+- 1.0.0 = Version displayed to users (major.minor.patch)
+- +1 = Build number (increment for EACH upload to App Store Connect)
+
+Example progression:
+- First release: 1.0.0+1
+- Bug fix: 1.0.1+2
+- New feature: 1.1.0+3
+- Major update: 2.0.0+4
+
+STEP 3: GENERATE APP ICONS (if not done)
+----------------------------------------
+Run in terminal:
+   flutter pub run flutter_launcher_icons
+
+STEP 4: BUILD iOS RELEASE
+-------------------------
+Run in terminal:
+   flutter clean
+   flutter pub get
+   flutter build ios --release
+
+This creates a release build at: build/ios/iphoneos/Runner.app
+
+STEP 5: ARCHIVE IN XCODE
+------------------------
+1. Open Xcode (if not already open):
+   open ios/Runner.xcworkspace
+
+2. In top toolbar, select device as:
+   "Any iOS Device (arm64)"
+   (NOT a simulator)
+
+3. Go to menu: Product → Archive
+
+4. Wait for archive to complete (5-15 minutes)
+   - Progress shown in Xcode activity area
+   - "Organizer" window opens automatically when done
+
+STEP 6: UPLOAD TO APP STORE CONNECT
+-----------------------------------
+1. In Organizer window, select your archive
+
+2. Click "Distribute App"
+
+3. Select distribution method:
+   → "App Store Connect" → Next
+
+4. Select destination:
+   → "Upload" → Next
+
+5. Distribution options (keep defaults):
+   ✅ Upload your app's symbols
+   ✅ Manage Version and Build Number
+   → Next
+
+6. Re-sign if needed:
+   → "Automatically manage signing"
+   → Next
+
+7. Review and Upload:
+   → Review summary
+   → Click "Upload"
+
+8. Wait for upload (5-20 minutes depending on internet)
+
+9. Success! You'll see "Upload Successful" message
+
+STEP 7: CREATE APP IN APP STORE CONNECT
+---------------------------------------
+1. Go to: https://appstoreconnect.apple.com
+
+2. Sign in with your Apple ID
+
+3. Click "My Apps"
+
+4. Click "+" button → "New App"
+
+5. Fill in app details:
+   - Platforms: ✅ iOS
+   - Name: MAICAFE
+   - Primary Language: English (U.S.)
+   - Bundle ID: Select your bundle ID (com.maicafe.app)
+   - SKU: maicafe-ios-001 (unique identifier, not shown to users)
+   - User Access: Full Access
+
+6. Click "Create"
+
+STEP 8: CONFIGURE TESTFLIGHT
+----------------------------
+1. In App Store Connect, go to your app
+
+2. Click "TestFlight" tab
+
+3. Wait for build to finish processing (5-30 minutes)
+   - Status will show "Processing" then change to ready
+
+4. Click on the build version
+
+5. Fill "Export Compliance Information":
+   - If your app ONLY uses HTTPS (like this app):
+     → "Does your app use encryption?" → "Yes"
+     → "Does your app qualify for any exemptions?" → "Yes"
+     → Select: "Standard encryption algorithms (HTTPS, SSL)"
+
+6. Fill "Test Information":
+   - Beta App Description: Brief description for testers
+   - Beta App Review Contact: Your email
+   - Privacy Policy URL: https://your-privacy-policy-url.com
+
+7. INTERNAL TESTING (immediate, no review):
+   - Go to "Internal Testing" → "App Store Connect Users"
+   - Click "+" to add testers (must be part of your developer team)
+   - Maximum: 100 internal testers
+   - Testers receive email with TestFlight link
+
+8. EXTERNAL TESTING (requires Apple review first time):
+   - Go to "External Testing"
+   - Click "+" → "Create New Group"
+   - Name your group (e.g., "Beta Testers")
+   - Add testers by email
+   - Click "Submit for Review"
+   - First submission takes 24-48 hours for review
+   - Maximum: 10,000 external testers
+
+STEP 9: SUBMIT TO APP STORE
+---------------------------
+1. In App Store Connect, go to your app
+
+2. Click "App Store" tab (or "Prepare for Submission")
+
+3. Fill ALL required fields:
+
+   APP INFORMATION:
+   - Name: MAICAFE
+   - Subtitle: A Taste Worth Savouring (optional, 30 chars max)
+   - Category: Food & Drink
+   - Secondary Category: Lifestyle (optional)
+   - Content Rights: "This app does not contain third-party content"
+
+   PRICING AND AVAILABILITY:
+   - Price: Free (or select price tier)
+   - Availability: Select countries
+
+   APP PRIVACY:
+   - Privacy Policy URL: (REQUIRED) https://your-privacy-policy-url.com
+   - Privacy Nutrition Label:
+     → Click "Get Started"
+     → Answer questions about data collection
+     → Common data types for food apps:
+       - Contact Info (for orders)
+       - Identifiers (user ID)
+       - Purchases (order history)
+
+   VERSION INFORMATION (for each localization):
+   - Screenshots: (REQUIRED - see sizes below)
+   - Promotional Text: (optional, can change without update)
+   - Description: Full app description (up to 4000 chars)
+   - Keywords: comma-separated, max 100 chars total
+   - Support URL: https://your-support-url.com
+   - Marketing URL: (optional)
+   - What's New: (for updates only)
+
+4. SCREENSHOTS REQUIRED SIZES:
+   ┌─────────────────────┬──────────────────┐
+   │ Device              │ Size (pixels)    │
+   ├─────────────────────┼──────────────────┤
+   │ iPhone 6.7" Display │ 1290 x 2796      │
+   │ iPhone 6.5" Display │ 1242 x 2688      │
+   │ iPhone 5.5" Display │ 1242 x 2208      │
+   │ iPad Pro 12.9"      │ 2048 x 2732      │
+   └─────────────────────┴──────────────────┘
+
+   Minimum: 3 screenshots per device size
+   Maximum: 10 screenshots per device size
+   Format: PNG or JPEG, no alpha channel
+
+5. SELECT BUILD:
+   - Under "Build" section, click "+"
+   - Select your uploaded build
+
+6. APP REVIEW INFORMATION:
+   - Sign-In Required: If app needs login, provide test account
+   - Contact: Your name, phone, email
+   - Notes: Any info for reviewers
+
+7. VERSION RELEASE:
+   - Manually release: You control when it goes live
+   - Automatically release: Goes live when approved
+
+8. Click "Submit for Review"
+
+9. Review typically takes 24-48 hours (can be longer for first submission)
+
+================================================================================
+4. ANDROID DEPLOYMENT (PLAY STORE)
+================================================================================
+
+STEP 1: CREATE KEYSTORE (first time only)
+-----------------------------------------
+Run in terminal:
+
+keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA \
+  -keysize 2048 -validity 10000 -alias upload
+
+You'll be prompted for:
+- Keystore password: (choose strong password, SAVE IT!)
+- Your name, organization, city, state, country
+- Key password: (can be same as keystore password)
+
+IMPORTANT: Save keystore file and passwords securely!
+           You CANNOT upload updates without the same keystore!
+
+STEP 2: CONFIGURE SIGNING
+-------------------------
+1. Create file: android/key.properties
+   (Add to .gitignore to keep secure!)
+
+   Content:
+   storePassword=YOUR_KEYSTORE_PASSWORD
+   keyPassword=YOUR_KEY_PASSWORD
+   keyAlias=upload
+   storeFile=/Users/jobinsebastian/upload-keystore.jks
+
+2. Edit android/app/build.gradle.kts:
+
+   Add before android { block:
+
+   def keystoreProperties = new Properties()
+   def keystorePropertiesFile = rootProject.file('key.properties')
+   if (keystorePropertiesFile.exists()) {
+       keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+   }
+
+   Inside android { block, add:
+
+   signingConfigs {
+       release {
+           keyAlias keystoreProperties['keyAlias']
+           keyPassword keystoreProperties['keyPassword']
+           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+           storePassword keystoreProperties['storePassword']
+       }
+   }
+
+   Update buildTypes:
+
+   buildTypes {
+       release {
+           signingConfig signingConfigs.release
+       }
+   }
+
+STEP 3: BUILD APP BUNDLE
+------------------------
+Run in terminal:
+
+   flutter clean
+   flutter pub get
+   flutter build appbundle --release
+
+Output: build/app/outputs/bundle/release/app-release.aab
+
+STEP 4: CREATE APP IN GOOGLE PLAY CONSOLE
+-----------------------------------------
+1. Go to: https://play.google.com/console
+
+2. Sign in with your Google account
+
+3. Click "Create app"
+
+4. Fill app details:
+   - App name: MAICAFE
+   - Default language: English (United States)
+   - App or game: App
+   - Free or paid: Free
+   - Declarations: Check all boxes
+
+5. Click "Create app"
+
+STEP 5: SET UP YOUR APP
+-----------------------
+Complete all sections in "Set up your app":
+
+1. APP ACCESS:
+   - All functionality available without restrictions
+   - OR provide test credentials
+
+2. ADS:
+   - Does your app contain ads? No
+
+3. CONTENT RATINGS:
+   - Complete questionnaire
+   - For food ordering app, typically rated "Everyone"
+
+4. TARGET AUDIENCE:
+   - Select target age groups
+   - Food apps typically: 18 and over (for ordering/payment)
+
+5. NEWS APP:
+   - Is this a news app? No
+
+6. COVID-19 APPS:
+   - Is this a COVID-19 app? No
+
+7. DATA SAFETY:
+   - Complete data collection questionnaire
+   - Similar to Apple's privacy labels
+
+8. GOVERNMENT APPS:
+   - Is this a government app? No
+
+9. FINANCIAL FEATURES:
+   - Does app provide financial features? No (unless you have in-app purchases)
+
+STEP 6: STORE LISTING
+---------------------
+Go to "Main store listing":
+
+1. APP DETAILS:
+   - App name: MAICAFE (max 30 chars)
+   - Short description: A Taste Worth Savouring (max 80 chars)
+   - Full description: Complete description (max 4000 chars)
+
+2. GRAPHICS:
+   - App icon: 512 x 512 px, PNG, 32-bit, no alpha
+   - Feature graphic: 1024 x 500 px (REQUIRED)
+   - Phone screenshots:
+     → Min 2, max 8
+     → Size: 320-3840 px, 16:9 or 9:16 aspect ratio
+   - Tablet screenshots: (recommended)
+     → 7-inch and 10-inch tablets
+
+3. CATEGORIZATION:
+   - App category: Food & Drink
+   - Tags: Select relevant tags
+
+4. CONTACT DETAILS:
+   - Email: (REQUIRED)
+   - Phone: (optional)
+   - Website: (optional)
+
+5. PRIVACY POLICY:
+   - URL: (REQUIRED) https://your-privacy-policy-url.com
+
+STEP 7: TESTING TRACKS
+----------------------
+
+INTERNAL TESTING (immediate, no review):
+1. Go to "Testing" → "Internal testing"
+2. Click "Create new release"
+3. Upload your .aab file
+4. Add release notes
+5. Click "Save" → "Review release" → "Start rollout"
+6. Add testers by email (max 100)
+7. Testers get link to join via Play Store
+
+CLOSED TESTING (limited audience):
+1. Go to "Testing" → "Closed testing"
+2. Create a track
+3. Upload .aab file
+4. Configure countries
+5. Add testers (by email or Google Group)
+6. Submit for review (usually 1-3 days)
+
+OPEN TESTING (anyone can join):
+1. Go to "Testing" → "Open testing"
+2. Upload .aab file
+3. Submit for review
+
+STEP 8: PRODUCTION RELEASE
+--------------------------
+1. Go to "Production"
+
+2. Click "Create new release"
+
+3. Upload your .aab file (app-release.aab)
+
+4. Release name: Auto-generated (can edit)
+
+5. Release notes: What's new in this version
+
+6. Click "Save" → "Review release"
+
+7. Check for any errors or warnings
+
+8. Click "Start rollout to Production"
+
+9. Choose rollout percentage:
+   - Start with 20% for safety
+   - Or 100% for full release
+
+10. Review time: 1-7 days (first app takes longer)
+
+================================================================================
+5. COMMON ISSUES & SOLUTIONS
+================================================================================
+
+iOS ISSUES:
+-----------
+
+Issue: "No signing certificate"
+Solution:
+   In Xcode: Preferences → Accounts → Select team → Download Manual Profiles
+
+Issue: "Provisioning profile doesn't include capability"
+Solution:
+   1. Go to developer.apple.com → Certificates, IDs & Profiles
+   2. Find your App ID
+   3. Enable required capabilities
+   4. Regenerate provisioning profile
+
+Issue: Build fails with CocoaPods error
+Solution:
+   cd ios
+   pod deintegrate
+   rm Podfile.lock
+   pod install --repo-update
+   cd ..
+   flutter clean
+   flutter build ios --release
+
+Issue: "The bundle identifier cannot be changed"
+Solution:
+   Must create new app in App Store Connect with new bundle ID
+
+Issue: Archive fails with bitcode error
+Solution:
+   In Xcode: Build Settings → Enable Bitcode → No
+
+Issue: "Missing compliance" in TestFlight
+Solution:
+   Must answer export compliance question for each build
+
+ANDROID ISSUES:
+---------------
+
+Issue: "Keystore was tampered with or password incorrect"
+Solution:
+   Double-check password in key.properties matches keystore
+
+Issue: "App bundle larger than 150MB"
+Solution:
+   - Use flutter build appbundle --target-platform android-arm64
+   - Enable ProGuard/R8 minification
+   - Remove unused assets
+
+Issue: "Version code already exists"
+Solution:
+   Increment versionCode in pubspec.yaml (the +N part)
+
+Issue: "Target SDK must be 34 or higher"
+Solution:
+   In android/app/build.gradle.kts, ensure:
+   targetSdk = 34 (or flutter.targetSdkVersion if it's 34+)
+
+Issue: App rejected for policy violation
+Solution:
+   - Read rejection email carefully
+   - Common issues: privacy policy, permissions, content
+   - Fix and resubmit
+
+================================================================================
+6. QUICK COMMANDS REFERENCE
+================================================================================
+
+iOS DEPLOYMENT:
+---------------
+# Clean and build
+flutter clean && flutter pub get && flutter build ios --release
+
+# Open Xcode for archiving
+open ios/Runner.xcworkspace
+
+# Then in Xcode: Product → Archive → Distribute App
+
+ANDROID DEPLOYMENT:
+-------------------
+# Clean and build app bundle
+flutter clean && flutter pub get && flutter build appbundle --release
+
+# Output location
+# build/app/outputs/bundle/release/app-release.aab
+
+VERSION UPDATE:
+---------------
+# Edit pubspec.yaml
+version: 1.0.1+2   # Increment build number for each upload
+
+# Version format: MAJOR.MINOR.PATCH+BUILD
+# Example: 1.0.0+1 → 1.0.0+2 (same version, new build)
+# Example: 1.0.0+1 → 1.0.1+2 (bug fix)
+# Example: 1.0.0+1 → 1.1.0+2 (new feature)
+# Example: 1.0.0+1 → 2.0.0+2 (major update)
+
+TESTING:
+--------
+# Run on iOS simulator
+flutter run -d iPhone
+
+# Run on Android emulator
+flutter run -d emulator
+
+# Run release mode locally
+flutter run --release
+
+TROUBLESHOOTING:
+----------------
+# Clear all caches
+flutter clean
+rm -rf ios/Pods ios/Podfile.lock
+rm -rf build/
+flutter pub get
+cd ios && pod install && cd ..
+
+# Upgrade Flutter
+flutter upgrade
+
+# Check for issues
+flutter doctor -v
+
+================================================================================
+7. GOOGLE PLAY & APP STORE POLICY REQUIREMENTS (AVOID REJECTION!)
+================================================================================
+
+⚠️  CRITICAL REQUIREMENTS FOR 2024/2025/2026:
+----------------------------------------------
+
+1. PRIVACY POLICY (REQUIRED - BOTH PLATFORMS)
+   ──────────────────────────────────────────
+   Status: ❌ NEED TO CREATE
+
+   Requirements:
+   □ Must be publicly accessible URL (not a file)
+   □ Must be written in same language as app
+   □ Must clearly state:
+     - What data you collect
+     - How you use the data
+     - How users can request data deletion
+     - Third-party services used (analytics, ads, etc.)
+     - Contact information
+
+   Free Privacy Policy Generators:
+   - https://www.termsfeed.com/privacy-policy-generator/
+   - https://www.freeprivacypolicy.com/
+   - https://app.privacypolicies.com/
+
+   Where to host:
+   - Your website
+   - GitHub Pages (free)
+   - Google Sites (free)
+   - Firebase Hosting (free tier)
+
+
+2. ACCOUNT DELETION (REQUIRED - GOOGLE PLAY SINCE 2023)
+   ────────────────────────────────────────────────────
+   Status: ⚠️  UI EXISTS BUT NOT FUNCTIONAL
+
+   Current Issue in Your App:
+   - Delete Account button exists in profile_screen.dart
+   - BUT it only shows "Account deletion requested" snackbar
+   - Does NOT actually delete the account!
+
+   Requirements:
+   □ Users must be able to DELETE their account from WITHIN the app
+   □ Must delete ALL user data (or clearly state what's retained)
+   □ Process must be completed within reasonable time
+   □ Can require re-authentication before deletion
+   □ Can have a "grace period" (max 30 days) before permanent deletion
+
+   API Endpoint Needed:
+   DELETE /user/account or POST /user/delete-account
+
+   Implementation Required:
+   - Add API endpoint in api_config.dart
+   - Add deleteAccount() method in auth_repository.dart
+   - Add deleteAccount() method in auth_provider.dart
+   - Update profile_screen.dart to call actual deletion
+   - Clear all local data after deletion
+   - Navigate to login screen after deletion
+
+
+3. DATA SAFETY SECTION (REQUIRED - GOOGLE PLAY)
+   ─────────────────────────────────────────────
+   Status: ❌ NEED TO COMPLETE IN PLAY CONSOLE
+
+   You must declare in Google Play Console:
+   □ Data collected (name, email, phone, location, etc.)
+   □ Data shared with third parties
+   □ Security practices (encryption, data deletion)
+   □ Whether app follows Families Policy (if targeting children)
+
+   Your App Likely Collects:
+   - Personal Info: Name, Email, Phone, Address
+   - Financial Info: Purchase history
+   - Identifiers: User ID, Device ID
+   - App Activity: Order history, preferences
+
+   Data Safety Form Questions:
+   1. Does your app collect user data? → YES
+   2. Is all data encrypted in transit? → YES (HTTPS)
+   3. Can users request data deletion? → YES (must implement)
+   4. Is data shared with third parties? → Answer based on your backend
+
+
+4. APP PERMISSIONS (BOTH PLATFORMS)
+   ─────────────────────────────────
+   Status: ✅ LOOKS OK
+
+   Current Permissions in Your App:
+   - INTERNET (required for API calls)
+   - ACCESS_NETWORK_STATE (check connectivity)
+   - VIBRATE (notifications)
+   - POST_NOTIFICATIONS (Android 13+)
+   - RECEIVE_BOOT_COMPLETED (scheduled notifications)
+
+   Rules:
+   □ Only request permissions you actually USE
+   □ Request at time of use, not at app launch
+   □ Explain WHY you need the permission
+   □ App must work (with limited features) if permission denied
+
+
+5. TARGET API LEVEL (ANDROID)
+   ──────────────────────────
+   Status: ✅ OK (using flutter defaults)
+
+   Requirements (as of 2024):
+   - New apps: Must target Android 14 (API 34) or higher
+   - App updates: Must target Android 13 (API 33) or higher
+
+   Your app uses flutter.targetSdkVersion which is current.
+
+
+6. CONTENT RATING (BOTH PLATFORMS)
+   ────────────────────────────────
+   Status: ❌ NEED TO COMPLETE
+
+   Complete questionnaire in:
+   - Google Play Console → Policy → App content → Content rating
+   - App Store Connect → App Information → Age Rating
+
+   For Food Ordering App, typically:
+   - No violence, no gambling, no user content
+   - Result: Usually "Everyone" or "4+"
+
+
+7. ADVERTISING ID DISCLOSURE (IF USING ADS)
+   ─────────────────────────────────────────
+   Status: ✅ NOT APPLICABLE (no ads in your app)
+
+
+8. LOCATION PERMISSION (IF COLLECTING LOCATION)
+   ─────────────────────────────────────────────
+   Status: ✅ NOT APPLICABLE (not requesting location)
+
+   If you add location later:
+   - Must explain why in permission dialog
+   - Must have background location policy if used in background
+
+
+9. FAMILIES POLICY (IF TARGETING CHILDREN)
+   ────────────────────────────────────────
+   Status: ✅ NOT APPLICABLE
+
+   Your app targets adults (food ordering with payment).
+
+
+10. LOGIN/AUTHENTICATION (APPLE SPECIFIC)
+    ──────────────────────────────────────
+    Status: ⚠️  POTENTIAL ISSUE
+
+    Apple Rule: If you offer third-party login (Google, Facebook),
+    you MUST also offer "Sign in with Apple".
+
+    Your App: Currently only has email/password login.
+    - If you add Google/Facebook login → Must add Apple Sign In
+    - If you keep only email/password → You're fine
+
+
+================================================================================
+ACTION ITEMS BEFORE SUBMISSION:
+================================================================================
+
+MUST DO (Will be rejected without these):
+─────────────────────────────────────────
+□ 1. Create and host Privacy Policy
+      - Host at: https://yourdomain.com/privacy-policy
+      - Add URL to both App Store Connect and Play Console
+
+□ 2. Implement REAL Account Deletion
+      - API: DELETE /user/account (or ask backend team)
+      - Clear all user data
+      - Test that it actually works!
+
+□ 3. Complete Data Safety Form (Google Play)
+      - In Play Console → Policy → App content → Data safety
+
+□ 4. Complete Content Rating (Both Platforms)
+      - Google Play: Policy → App content → Content rating
+      - App Store: App Information → Age Rating
+
+□ 5. Add Support Email/URL
+      - Must be valid and monitored
+
+RECOMMENDED (Reduces rejection risk):
+────────────────────────────────────
+□ 6. Test on real devices (not just emulators)
+□ 7. Test all user flows completely
+□ 8. Ensure no crashes or ANRs
+□ 9. Check all images load correctly
+□ 10. Verify payment flow works (if applicable)
+
+
+================================================================================
+SAMPLE PRIVACY POLICY TEMPLATE FOR MAICAFE:
+================================================================================
+
+PRIVACY POLICY FOR MAICAFE
+
+Last updated: [DATE]
+
+1. INFORMATION WE COLLECT
+   - Personal Information: Name, email, phone number
+   - Account Information: Login credentials
+   - Order Information: Order history, delivery addresses
+   - Device Information: Device type, OS version
+
+2. HOW WE USE YOUR INFORMATION
+   - To process and deliver your orders
+   - To communicate about your orders
+   - To improve our services
+   - To send promotional offers (with consent)
+
+3. DATA SHARING
+   - We do not sell your personal information
+   - We share data with delivery partners to fulfill orders
+   - We may share with payment processors for transactions
+
+4. DATA SECURITY
+   - All data is transmitted using SSL/TLS encryption
+   - Passwords are hashed and never stored in plain text
+
+5. YOUR RIGHTS
+   - Access your personal data
+   - Correct inaccurate data
+   - Delete your account and data
+   - Opt-out of marketing communications
+
+6. DATA DELETION
+   - You can delete your account from the app (Profile → Delete Account)
+   - All personal data will be deleted within 30 days
+   - Order history may be retained for legal/accounting purposes
+
+7. CONTACT US
+   Email: support@maicafe.com
+
+================================================================================
+                              END OF GUIDE
+================================================================================
+
+Document Version: 1.1
+Last Updated: January 2026
+App: MAICAFE

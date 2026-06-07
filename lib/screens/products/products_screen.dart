@@ -7,6 +7,7 @@ import '../../config/theme/app_colors.dart';
 import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/enums/app_enums.dart';
+import '../../core/utils/auth_guard.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../routes/app_routes.dart';
@@ -164,8 +165,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void _onNavTap(int index) {
+    // Wishlist (1), Cart (2) and Profile (3) are account-based — gate guests.
+    if (index == 1 &&
+        !AuthGuard.requireAuth(context, action: 'view your wishlist')) {
+      return;
+    }
     if (index == 2) {
+      if (!AuthGuard.requireAuth(context, action: 'view your cart')) return;
       Navigator.pushNamed(context, AppRoutes.cart);
+      return;
+    }
+    if (index == 3 &&
+        !AuthGuard.requireAuth(context, action: 'view your profile')) {
       return;
     }
     setState(() {
@@ -492,7 +503,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 0.72,
+          childAspectRatio: 0.68,
         ),
         itemCount: 6,
         itemBuilder: (context, index) => const ShimmerProductCard(),
@@ -546,7 +557,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.72,
+            childAspectRatio: 0.68,
           ),
           itemCount: products.length,
           itemBuilder: (context, index) {
@@ -570,15 +581,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   );
                 },
                 onAddTap: () {
-                  final cartProvider = context.read<CartProvider>();
-                  cartProvider.addToCart(product: product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${product.name} added to cart'),
-                      duration: const Duration(seconds: 1),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.productDetail,
+                    arguments: {
+                      'slug': product.slug,
+                      'product': product,
+                    },
                   );
                 },
               ),

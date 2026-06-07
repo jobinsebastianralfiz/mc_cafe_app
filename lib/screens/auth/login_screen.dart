@@ -9,7 +9,6 @@ import '../../routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/pattern_background.dart';
-import '../../widgets/social_login_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,18 +36,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final success = await authProvider.login(
       email: _emailController.text.trim(),
-      password: _passwordController.text,
+      password: _passwordController.text.trim(),
     );
 
     if (!mounted) return;
 
     if (success) {
-      // Navigate to home and clear all previous routes
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.home,
-        (route) => false,
-      );
+      if (authProvider.isAuthenticated) {
+        // Token returned - user already verified, go to home
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.home,
+          (route) => false,
+        );
+      } else {
+        // OTP verification needed
+        Navigator.pushNamed(
+          context,
+          AppRoutes.otpVerification,
+          arguments: {'email': _emailController.text.trim(), 'otpType': 'login'},
+        );
+      }
     } else {
       // Show error message
       _showErrorSnackBar(authProvider.errorMessage ?? 'Login failed');
@@ -63,14 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-  }
-
-  void _handleGoogleLogin() {
-    // TODO: Implement Google login
-  }
-
-  void _handleAppleLogin() {
-    // TODO: Implement Apple login
   }
 
   void _handleForgotPassword() {
@@ -229,36 +229,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.primary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: screenHeight * 0.04),
-
-                  // Or continue with
-                  Text(
-                    'Or continue with',
-                    style: TextStyle(
-                      fontFamily: 'Sora',
-                      fontSize: 14,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Social login buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SocialLoginButton(
-                        type: SocialLoginType.google,
-                        onPressed: _handleGoogleLogin,
-                      ),
-                      const SizedBox(width: 20),
-                      SocialLoginButton(
-                        type: SocialLoginType.apple,
-                        onPressed: _handleAppleLogin,
                       ),
                     ],
                   ),

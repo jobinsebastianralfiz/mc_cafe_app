@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
-
 import '../../core/config/api_config.dart';
 import '../../core/exceptions/api_exception.dart';
 import '../../core/services/api_service.dart';
+import '../../core/utils/json_parsers.dart';
 import '../models/order_model.dart';
 
 /// Order Repository
@@ -19,7 +18,7 @@ class OrderRepository {
   /// Place a new order (checkout)
   ///
   /// [orderType] - 'pickup' or 'delivery'
-  /// [paymentMethod] - 'pay_at_counter' or 'online'
+  /// [paymentMethod] - 'pay_at_counter'
   /// [deliveryAddress] - Required for delivery orders
   /// [notes] - Optional order notes
   Future<CheckoutResult> checkout({
@@ -28,9 +27,6 @@ class OrderRepository {
     String? deliveryAddress,
     String? notes,
   }) async {
-    debugPrint('🔵 [OrderRepository] checkout called');
-    debugPrint('🔵 [OrderRepository] orderType: $orderType, paymentMethod: $paymentMethod');
-
     final body = <String, dynamic>{
       'order_type': orderType,
       'payment_method': paymentMethod,
@@ -55,8 +51,6 @@ class OrderRepository {
       );
     }
 
-    debugPrint('🟢 [OrderRepository] Order placed successfully');
-
     final data = response['data'] as Map<String, dynamic>;
     final order = Order.fromJson(data['order'] as Map<String, dynamic>);
     final payment = PaymentInfo.fromJson(data['payment'] as Map<String, dynamic>);
@@ -68,8 +62,6 @@ class OrderRepository {
 
   /// Get user's orders list
   Future<OrdersListResult> getOrders({int page = 1}) async {
-    debugPrint('🔵 [OrderRepository] getOrders called, page: $page');
-
     final response = await _apiService.get(
       ApiConfig.orders,
       queryParams: {'page': page},
@@ -80,8 +72,6 @@ class OrderRepository {
         message: response['message'] as String? ?? 'Failed to load orders',
       );
     }
-
-    debugPrint('🟢 [OrderRepository] Orders loaded');
 
     final data = response['data'] as Map<String, dynamic>;
     final ordersJson = data['orders'] as List? ?? [];
@@ -101,8 +91,6 @@ class OrderRepository {
 
   /// Get single order details
   Future<Order> getOrderDetails(int orderId) async {
-    debugPrint('🔵 [OrderRepository] getOrderDetails called, orderId: $orderId');
-
     final response = await _apiService.get(
       '${ApiConfig.orderDetails}/$orderId',
     );
@@ -113,8 +101,6 @@ class OrderRepository {
       );
     }
 
-    debugPrint('🟢 [OrderRepository] Order details loaded');
-
     final data = response['data'] as Map<String, dynamic>;
     return Order.fromJson(data['order'] as Map<String, dynamic>);
   }
@@ -123,8 +109,6 @@ class OrderRepository {
 
   /// Track order status
   Future<OrderTrackingInfo> trackOrder(int orderId) async {
-    debugPrint('🔵 [OrderRepository] trackOrder called, orderId: $orderId');
-
     final response = await _apiService.get(
       '${ApiConfig.orderTrack}/$orderId/track',
     );
@@ -135,8 +119,6 @@ class OrderRepository {
       );
     }
 
-    debugPrint('🟢 [OrderRepository] Order tracking info loaded');
-
     final data = response['data'] as Map<String, dynamic>;
     return OrderTrackingInfo.fromJson(data);
   }
@@ -145,8 +127,6 @@ class OrderRepository {
 
   /// Cancel an order
   Future<bool> cancelOrder(int orderId) async {
-    debugPrint('🔵 [OrderRepository] cancelOrder called, orderId: $orderId');
-
     final response = await _apiService.post(
       '${ApiConfig.orderCancel}/$orderId/cancel',
     );
@@ -157,7 +137,6 @@ class OrderRepository {
       );
     }
 
-    debugPrint('🟢 [OrderRepository] Order cancelled');
     return true;
   }
 
@@ -165,8 +144,6 @@ class OrderRepository {
 
   /// Reorder items from a previous order
   Future<ReorderResult> reorder(int orderId) async {
-    debugPrint('🔵 [OrderRepository] reorder called, orderId: $orderId');
-
     final response = await _apiService.post(
       '${ApiConfig.orderReorder}/$orderId/reorder',
     );
@@ -177,11 +154,9 @@ class OrderRepository {
       );
     }
 
-    debugPrint('🟢 [OrderRepository] Reorder successful');
-
     final data = response['data'] as Map<String, dynamic>;
     return ReorderResult(
-      addedItems: data['added_items'] as int? ?? 0,
+      addedItems: parseInt(data['added_items']),
       skippedItems: (data['skipped_items'] as List?)?.cast<String>() ?? [],
       message: response['message'] as String? ?? 'Items added to cart',
     );
@@ -191,8 +166,6 @@ class OrderRepository {
 
   /// Get order by token number
   Future<Order> getOrderByToken(int token, String date) async {
-    debugPrint('🔵 [OrderRepository] getOrderByToken called, token: $token, date: $date');
-
     final response = await _apiService.get(
       ApiConfig.orderByToken,
       queryParams: {
@@ -206,8 +179,6 @@ class OrderRepository {
         message: response['message'] as String? ?? 'Failed to find order',
       );
     }
-
-    debugPrint('🟢 [OrderRepository] Order found by token');
 
     final data = response['data'] as Map<String, dynamic>;
     return Order.fromJson(data['order'] as Map<String, dynamic>);
@@ -249,7 +220,9 @@ class PaymentInfo {
       method: json['method'] as String? ?? '',
       amount: _parseDouble(json['amount']),
       currency: json['currency'] as String? ?? 'GBP',
-      paymentUrl: json['payment_url'] as String?,
+      paymentUrl: json['payment_url'] as String? ??
+          json['initiate_url'] as String? ??
+          json['redirect_url'] as String?,
       instructions: json['instructions'] as String? ?? '',
     );
   }
@@ -290,10 +263,10 @@ class OrderPagination {
 
   factory OrderPagination.fromJson(Map<String, dynamic> json) {
     return OrderPagination(
-      currentPage: json['current_page'] as int? ?? 1,
-      lastPage: json['last_page'] as int? ?? 1,
-      perPage: json['per_page'] as int? ?? 10,
-      total: json['total'] as int? ?? 0,
+      currentPage: parseInt(json['current_page'], defaultValue: 1),
+      lastPage: parseInt(json['last_page'], defaultValue: 1),
+      perPage: parseInt(json['per_page'], defaultValue: 10),
+      total: parseInt(json['total']),
     );
   }
 
@@ -327,7 +300,7 @@ class OrderTrackingInfo {
   factory OrderTrackingInfo.fromJson(Map<String, dynamic> json) {
     final timelineJson = json['timeline'] as List? ?? [];
     return OrderTrackingInfo(
-      orderId: json['order_id'] as int,
+      orderId: parseInt(json['order_id']),
       orderNumber: json['order_number'] as String? ?? '',
       token: json['token'] as String? ?? '',
       currentStatus: json['current_status'] as String? ?? '',

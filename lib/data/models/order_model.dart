@@ -1,4 +1,5 @@
 import '../../core/enums/app_enums.dart';
+import '../../core/utils/json_parsers.dart';
 import 'address_model.dart';
 
 /// Order Model
@@ -73,12 +74,12 @@ class Order {
   factory Order.fromJson(Map<String, dynamic> json) {
     final itemsList = json['items'] ?? json['order_items'] ?? [];
     return Order(
-      id: json['id'] as int,
+      id: parseInt(json['id']),
       orderNumber: json['order_number'] as String? ?? json['id'].toString(),
-      dailyToken: json['daily_token'] as int?,
+      dailyToken: parseIntNullable(json['daily_token']),
       formattedToken: json['formatted_token'] as String?,
       tokenDate: json['token_date'] as String?,
-      userId: json['user_id'] as int? ?? 0,
+      userId: parseInt(json['user_id']),
       status: OrderStatus.fromValue(
           json['status'] as String? ?? 'pending'),
       orderType: OrderType.fromValue(
@@ -90,7 +91,7 @@ class Order {
       items: (itemsList as List)
           .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      itemsCount: json['items_count'] as int? ?? 0,
+      itemsCount: parseInt(json['items_count']),
       subtotal: _parseDouble(json['subtotal'] ?? json['sub_total']),
       discount: _parseDouble(json['discount']),
       deliveryCharge: _parseDouble(json['delivery_charge'] ?? json['delivery_fee']),
@@ -268,7 +269,7 @@ class OrderItem {
       // Parse variant from customizations
       final variantData = customizations['variant'] as Map<String, dynamic>?;
       if (variantData != null) {
-        variantId = variantData['id'] as int?;
+        variantId = parseIntNullable(variantData['id']);
         variantName = variantData['name'] as String?;
       }
 
@@ -281,19 +282,19 @@ class OrderItem {
           .map((e) => OrderItemAddon.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    variantId ??= json['variant_id'] as int?;
+    variantId ??= parseIntNullable(json['variant_id']);
     variantName ??= json['variant_name'] as String?;
     specialInstructions ??= json['special_instructions'] as String?;
 
     return OrderItem(
-      id: json['id'] as int,
-      productId: json['product_id'] as int,
+      id: parseInt(json['id']),
+      productId: parseInt(json['product_id']),
       productName: json['product_name'] as String? ??
           (json['product'] is Map ? json['product']['name'] as String? : null) ??
           '',
       productImage: json['product_image'] as String? ??
           (json['product'] is Map ? json['product']['image'] as String? : null),
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: parseInt(json['quantity'], defaultValue: 1),
       unitPrice: Order._parseDouble(json['unit_price'] ?? json['price']),
       totalPrice: Order._parseDouble(json['total_price'] ?? json['subtotal'] ?? json['total']),
       variantId: variantId,
@@ -346,10 +347,10 @@ class OrderItemAddon {
 
   factory OrderItemAddon.fromJson(Map<String, dynamic> json) {
     return OrderItemAddon(
-      id: json['id'] as int? ?? json['addon_id'] as int? ?? 0,
+      id: parseInt(json['id'] ?? json['addon_id']),
       name: json['name'] as String? ?? json['addon_name'] as String? ?? '',
       price: Order._parseDouble(json['price']),
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: parseInt(json['quantity'], defaultValue: 1),
     );
   }
 

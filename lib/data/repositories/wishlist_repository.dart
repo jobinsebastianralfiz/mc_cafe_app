@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import '../../core/config/api_config.dart';
 import '../../core/services/api_service.dart';
 import '../models/models.dart';
@@ -22,21 +20,12 @@ class WishlistRepository {
   /// Get user's wishlist
   /// GET /wishlist
   Future<Wishlist> getWishlist() async {
-    debugPrint('🔵 [WishlistRepo] getWishlist called');
-    debugPrint('🔵 [WishlistRepo] Endpoint: GET ${ApiConfig.wishlist}');
-
     final response = await _apiService.get(ApiConfig.wishlist);
-
-    debugPrint('🔵 [WishlistRepo] Response: ${response.data}');
 
     final data = response['data'];
 
-    debugPrint('🔵 [WishlistRepo] data: $data');
-    debugPrint('🔵 [WishlistRepo] data type: ${data.runtimeType}');
-
     // Handle different response formats
     if (data == null) {
-      debugPrint('🟡 [WishlistRepo] data is null, returning empty wishlist');
       return Wishlist.empty();
     }
 
@@ -44,64 +33,47 @@ class WishlistRepository {
     // or: { "data": { "items": [...] } }
     // or: { "data": [...] }
     if (data is List) {
-      debugPrint('🟢 [WishlistRepo] data is List with ${data.length} items');
       return Wishlist.fromItems(data);
     }
 
     if (data is Map<String, dynamic>) {
-      debugPrint('🔵 [WishlistRepo] data is Map with keys: ${data.keys.toList()}');
-
       // Check for wishlist array
       if (data.containsKey('wishlist') && data['wishlist'] is List) {
         final wishlistItems = data['wishlist'] as List;
-        debugPrint('🟢 [WishlistRepo] Found wishlist key with ${wishlistItems.length} items');
         return Wishlist.fromItems(wishlistItems);
       }
       // Check for items array
       if (data.containsKey('items') && data['items'] is List) {
         final items = data['items'] as List;
-        debugPrint('🟢 [WishlistRepo] Found items key with ${items.length} items');
         return Wishlist.fromItems(items);
       }
       // Check for products array
       if (data.containsKey('products') && data['products'] is List) {
         final products = data['products'] as List;
-        debugPrint('🟢 [WishlistRepo] Found products key with ${products.length} items');
         return Wishlist.fromItems(products);
       }
       // Try parsing the whole data object
-      debugPrint('🟡 [WishlistRepo] No known key found, trying to parse whole data object');
       return Wishlist.fromJson(data);
     }
 
-    debugPrint('🟡 [WishlistRepo] Unknown data format, returning empty wishlist');
     return Wishlist.empty();
   }
 
   /// Add product to wishlist
   /// POST /wishlist with body {"product_id": productId}
   Future<WishlistItem?> addToWishlist(int productId) async {
-    debugPrint('🔵 [WishlistRepo] addToWishlist called for productId: $productId');
-    debugPrint('🔵 [WishlistRepo] Endpoint: POST ${ApiConfig.wishlist}');
-    debugPrint('🔵 [WishlistRepo] Body: {"product_id": $productId}');
-
     final response = await _apiService.post(
       ApiConfig.wishlist,
       body: {'product_id': productId},
     );
 
-    debugPrint('🔵 [WishlistRepo] Response: ${response.data}');
-
     // Response: { "success": true, "data": { "wishlist_item": {...} } }
     final success = response['success'] == true;
     final data = response['data'];
 
-    debugPrint('🔵 [WishlistRepo] success: $success, data: $data');
-
     // Even if success is false (already in wishlist), we might get the item back
     if (data != null && data is Map<String, dynamic>) {
       if (data.containsKey('wishlist_item') && data['wishlist_item'] != null) {
-        debugPrint('🟢 [WishlistRepo] Got wishlist_item from response');
         return WishlistItem.fromJson(data['wishlist_item'] as Map<String, dynamic>);
       }
     }
@@ -109,16 +81,12 @@ class WishlistRepository {
     if (!success) {
       // Check if it's "already in wishlist" - that's still a success for our purposes
       final message = response['message']?.toString().toLowerCase() ?? '';
-      debugPrint('🟡 [WishlistRepo] Not success. Message: $message');
       if (message.contains('already')) {
-        debugPrint('🟡 [WishlistRepo] Already in wishlist - returning null (success)');
         return null; // Item already exists, not an error
       }
-      debugPrint('🔴 [WishlistRepo] Throwing exception: ${response['message']}');
       throw Exception(response['message'] ?? 'Failed to add to wishlist');
     }
 
-    debugPrint('🟢 [WishlistRepo] Success, returning null');
     return null;
   }
 
@@ -147,6 +115,26 @@ class WishlistRepository {
       return wishlist.containsProduct(productId);
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Get wishlist item count
+  /// GET /wishlist/count
+  Future<int> getWishlistCount() async {
+    try {
+      final response = await _apiService.get(ApiConfig.wishlistCount);
+      final data = response['data'];
+
+      if (data is Map<String, dynamic> && data.containsKey('count')) {
+        return data['count'] as int;
+      }
+      if (data is int) {
+        return data;
+      }
+
+      return 0;
+    } catch (e) {
+      return 0;
     }
   }
 }

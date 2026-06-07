@@ -5,12 +5,14 @@ class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
   final int cartCount;
+  final int wishlistCount;
 
   const BottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
     this.cartCount = 0,
+    this.wishlistCount = 0,
   });
 
   @override
@@ -45,6 +47,7 @@ class BottomNavBar extends StatelessWidget {
             outlinedIcon: Icons.favorite_border_rounded,
             isSelected: currentIndex == 1,
             onTap: () => onTap(1),
+            badgeCount: wishlistCount,
           ),
           _NavItem(
             icon: Icons.shopping_bag_rounded,

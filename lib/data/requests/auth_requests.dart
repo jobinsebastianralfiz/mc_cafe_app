@@ -84,14 +84,17 @@ class OtpVerifyRequest {
 /// Request body for resending OTP.
 class ResendOtpRequest {
   final String email;
+  final String type;
 
   const ResendOtpRequest({
     required this.email,
+    this.type = 'registration',
   });
 
   Map<String, dynamic> toJson() {
     return {
       'email': email,
+      'type': type,
     };
   }
 }
@@ -115,16 +118,16 @@ class ForgotPasswordRequest {
 
 /// Reset Password Request
 ///
-/// Request body for resetting password with token.
+/// Request body for resetting password with OTP.
 class ResetPasswordRequest {
   final String email;
-  final String token;
+  final String otp;
   final String password;
   final String passwordConfirmation;
 
   const ResetPasswordRequest({
     required this.email,
-    required this.token,
+    required this.otp,
     required this.password,
     required this.passwordConfirmation,
   });
@@ -132,7 +135,7 @@ class ResetPasswordRequest {
   Map<String, dynamic> toJson() {
     return {
       'email': email,
-      'token': token,
+      'otp': otp,
       'password': password,
       'password_confirmation': passwordConfirmation,
     };

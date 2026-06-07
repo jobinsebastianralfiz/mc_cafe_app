@@ -19,54 +19,75 @@ class AuthRepository {
         _storageService = storageService ?? StorageService.instance;
 
   /// Register a new user
-  /// Returns User and saves auth token
-  Future<User> register(RegisterRequest request) async {
+  /// OTP is sent to user's email for verification
+  Future<User?> register(RegisterRequest request) async {
     final response = await _apiService.post(
       ApiConfig.register,
       body: request.toJson(),
       requiresAuth: false,
     );
 
-    final data = response['data'] as Map<String, dynamic>;
-    final user = User.fromJson(data['user'] as Map<String, dynamic>);
-    final token = data['token'] as String;
-    final tokenType = data['token_type'] as String? ?? 'Bearer';
+    final data = response['data'] as Map<String, dynamic>?;
 
-    // Save auth data
-    await _storageService.saveAuthData(
-      token: token,
-      tokenType: tokenType,
-      userData: data['user'] as Map<String, dynamic>,
-    );
+    // If token is returned, save auth data
+    if (data != null && data.containsKey('token')) {
+      final user = User.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+      final tokenType = data['token_type'] as String? ?? 'Bearer';
 
-    return user;
+      await _storageService.saveAuthData(
+        token: token,
+        tokenType: tokenType,
+        userData: data['user'] as Map<String, dynamic>,
+      );
+
+      return user;
+    }
+
+    // No token = OTP verification required, return user if available
+    if (data != null && data.containsKey('user')) {
+      return User.fromJson(data['user'] as Map<String, dynamic>);
+    }
+
+    return null;
   }
 
   /// Login user
-  /// Returns User and saves auth token
-  Future<User> login(LoginRequest request) async {
+  /// Sends OTP to user's email for verification
+  Future<User?> login(LoginRequest request) async {
     final response = await _apiService.post(
       ApiConfig.login,
       body: request.toJson(),
       requiresAuth: false,
     );
 
-    final data = response['data'] as Map<String, dynamic>;
-    final user = User.fromJson(data['user'] as Map<String, dynamic>);
-    final token = data['token'] as String;
-    final tokenType = data['token_type'] as String? ?? 'Bearer';
+    final data = response['data'] as Map<String, dynamic>?;
 
-    // Save auth data
-    await _storageService.saveAuthData(
-      token: token,
-      tokenType: tokenType,
-      userData: data['user'] as Map<String, dynamic>,
-    );
+    // If token is returned, save auth data (user already verified)
+    if (data != null && data.containsKey('token')) {
+      final user = User.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+      final tokenType = data['token_type'] as String? ?? 'Bearer';
 
-    return user;
+      await _storageService.saveAuthData(
+        token: token,
+        tokenType: tokenType,
+        userData: data['user'] as Map<String, dynamic>,
+      );
+
+      return user;
+    }
+
+    // No token = OTP verification required
+    if (data != null && data.containsKey('user')) {
+      return User.fromJson(data['user'] as Map<String, dynamic>);
+    }
+
+    return null;
   }
 
   /// Verify OTP
+  /// Returns true on success and saves auth data if token is in the response
   Future<bool> verifyOtp(OtpVerifyRequest request) async {
     final response = await _apiService.post(
       ApiConfig.verifyOtp,
@@ -74,7 +95,22 @@ class AuthRepository {
       requiresAuth: false,
     );
 
-    return response['success'] == true;
+    if (response['success'] != true) return false;
+
+    // Save auth data if token is returned in verify response
+    final data = response['data'] as Map<String, dynamic>?;
+    if (data != null && data.containsKey('token')) {
+      final token = data['token'] as String;
+      final tokenType = data['token_type'] as String? ?? 'Bearer';
+
+      await _storageService.saveAuthData(
+        token: token,
+        tokenType: tokenType,
+        userData: data['user'] as Map<String, dynamic>,
+      );
+    }
+
+    return true;
   }
 
   /// Resend OTP
@@ -96,7 +132,13 @@ class AuthRepository {
       requiresAuth: false,
     );
 
-    return response['success'] == true;
+    if (response['success'] != true) {
+      throw ApiException(
+        message: response['message'] as String? ?? 'Failed to send reset OTP.',
+      );
+    }
+
+    return true;
   }
 
   /// Reset password with token
@@ -107,7 +149,13 @@ class AuthRepository {
       requiresAuth: false,
     );
 
-    return response['success'] == true;
+    if (response['success'] != true) {
+      throw ApiException(
+        message: response['message'] as String? ?? 'Password reset failed.',
+      );
+    }
+
+    return true;
   }
 
   /// Get current user profile
@@ -137,6 +185,16 @@ class AuthRepository {
     await _storageService.setUserData(data['user'] as Map<String, dynamic>);
 
     return user;
+  }
+
+  /// Delete user account
+  Future<bool> deleteAccount(String password) async {
+    final response = await _apiService.delete(
+      ApiConfig.deleteAccount,
+      body: {'password': password},
+    );
+
+    return response['success'] == true;
   }
 
   /// Logout user

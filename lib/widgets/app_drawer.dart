@@ -9,11 +9,16 @@ class AppDrawer extends StatelessWidget {
   final Function(int) onItemTap;
   final VoidCallback onClose;
 
+  /// When true the user is browsing as a guest — the footer shows "Login"
+  /// (index -2) instead of "Logout".
+  final bool isGuest;
+
   const AppDrawer({
     super.key,
     required this.selectedIndex,
     required this.onItemTap,
     required this.onClose,
+    this.isGuest = false,
   });
 
   @override
@@ -121,11 +126,20 @@ class AppDrawer extends StatelessWidget {
                         isSelected: selectedIndex == 6,
                         onTap: () => onItemTap(6),
                       ),
-                      _DrawerItemWithImage(
-                        imagePath: 'assets/icons/logout.png',
-                        label: 'Logout',
-                        onTap: () => onItemTap(-1),
-                      ),
+                      if (isGuest)
+                        _DrawerItem(
+                          icon: Icons.login_rounded,
+                          selectedIcon: Icons.login_rounded,
+                          label: 'Login',
+                          isSelected: false,
+                          onTap: () => onItemTap(-2),
+                        )
+                      else
+                        _DrawerItemWithImage(
+                          imagePath: 'assets/icons/logout.png',
+                          label: 'Logout',
+                          onTap: () => onItemTap(-1),
+                        ),
                     ],
                   ),
                 ),
@@ -163,10 +177,20 @@ class AppDrawer extends StatelessWidget {
                       height: 64,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return _buildDefaultAvatar(firstName);
+                        return Image.asset(
+                          'assets/images/default_avatar.jpg',
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                        );
                       },
                     )
-                  : _buildDefaultAvatar(firstName),
+                  : Image.asset(
+                      'assets/images/default_avatar.jpg',
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
 
@@ -187,7 +211,7 @@ class AppDrawer extends StatelessWidget {
 
           // Email
           Text(
-            user?.email ?? '',
+            user?.email ?? 'Sign in to access your account',
             style: TextStyle(
               fontFamily: 'Sora',
               fontSize: 14,

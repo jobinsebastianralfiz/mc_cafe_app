@@ -1,3 +1,5 @@
+import '../../core/utils/json_parsers.dart';
+
 /// User Model
 ///
 /// Represents the authenticated user data from the API.
@@ -32,13 +34,13 @@ class User {
   /// Create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] as int,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String?,
       role: json['role'] as String? ?? 'customer',
       address: json['address'] as String?,
-      loyaltyPoints: json['loyalty_points'] as int? ?? 0,
+      loyaltyPoints: parseInt(json['loyalty_points']),
       loyaltyTier: json['loyalty_tier'] as String?,
       avatar: json['avatar'] as String?,
       createdAt: json['created_at'] != null

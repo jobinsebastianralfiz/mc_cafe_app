@@ -17,6 +17,10 @@ class ApiService {
   final http.Client _client;
   final StorageService _storage;
 
+  /// Callback for handling unauthorized (401) responses
+  /// Set this to handle automatic logout when token expires
+  static Function()? onUnauthorized;
+
   ApiService._({
     http.Client? client,
     StorageService? storage,
@@ -221,6 +225,12 @@ class ApiService {
         data: body,
         isSuccess: true,
       );
+    }
+
+    // Handle 401 Unauthorized - token expired
+    if (response.statusCode == 401) {
+      // Trigger unauthorized callback (logout)
+      onUnauthorized?.call();
     }
 
     // Handle error responses

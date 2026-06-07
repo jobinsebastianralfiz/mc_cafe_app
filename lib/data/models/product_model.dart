@@ -1,3 +1,4 @@
+import '../../core/utils/json_parsers.dart';
 import 'category_model.dart';
 
 /// Product Model
@@ -15,6 +16,7 @@ class Product {
   final bool hasVariants;
   final Category? category;
   final int? categoryId;
+  final String? productType;
   final Map<String, dynamic>? customizationOptions;
 
   // Price fields - when no variants
@@ -46,6 +48,7 @@ class Product {
     this.hasVariants = false,
     this.category,
     this.categoryId,
+    this.productType,
     this.customizationOptions,
     this.price,
     this.comparePrice,
@@ -63,7 +66,7 @@ class Product {
   /// Create Product from JSON
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] as int,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       slug: json['slug'] as String? ?? '',
       description: json['description'] as String?,
@@ -76,11 +79,12 @@ class Product {
       category: json['category'] != null && json['category'] is Map
           ? Category.fromJson(json['category'] as Map<String, dynamic>)
           : null,
-      categoryId: json['category_id'] as int?,
+      categoryId: parseIntNullable(json['category_id']),
+      productType: json['product_type'] as String?,
       customizationOptions: json['customization_options'] as Map<String, dynamic>?,
       price: json['price']?.toString(),
       comparePrice: json['compare_price']?.toString(),
-      stockQuantity: json['stock_quantity'] as int?,
+      stockQuantity: parseIntNullable(json['stock_quantity']),
       sku: json['sku'] as String?,
       minPrice: json['min_price']?.toString(),
       maxPrice: json['max_price']?.toString(),
@@ -117,6 +121,7 @@ class Product {
       'has_variants': hasVariants,
       'category': category?.toJson(),
       'category_id': categoryId,
+      'product_type': productType,
       'customization_options': customizationOptions,
       'price': price,
       'compare_price': comparePrice,
@@ -227,12 +232,12 @@ class ProductVariant {
 
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     return ProductVariant(
-      id: json['id'] as int,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       sku: json['sku'] as String?,
       price: json['price']?.toString() ?? '0.00',
       comparePrice: json['compare_price']?.toString(),
-      stockQuantity: json['stock_quantity'] as int?,
+      stockQuantity: parseIntNullable(json['stock_quantity']),
     );
   }
 
@@ -292,13 +297,13 @@ class AddonGroup {
 
   factory AddonGroup.fromJson(Map<String, dynamic> json) {
     return AddonGroup(
-      id: json['id'] as int? ?? 0,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       description: json['description'] as String?,
       selectionType: json['selection_type'] as String? ?? 'multiple',
       isRequired: json['is_required'] as bool? ?? false,
-      minSelections: json['min_selections'] as int? ?? 0,
-      maxSelections: json['max_selections'] as int?,
+      minSelections: parseInt(json['min_selections']),
+      maxSelections: parseIntNullable(json['max_selections']),
       addons: json['addons'] != null
           ? (json['addons'] as List)
               .map((e) => Addon.fromJson(e as Map<String, dynamic>))
@@ -347,7 +352,7 @@ class Addon {
 
   factory Addon.fromJson(Map<String, dynamic> json) {
     return Addon(
-      id: json['id'] as int,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       price: json['price']?.toString() ?? '0.00',
     );

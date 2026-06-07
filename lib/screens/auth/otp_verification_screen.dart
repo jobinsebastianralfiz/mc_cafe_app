@@ -11,8 +11,9 @@ import '../../widgets/pattern_background.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String? email;
+  final String otpType;
 
-  const OtpVerificationScreen({super.key, this.email});
+  const OtpVerificationScreen({super.key, this.email, this.otpType = 'registration'});
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -20,10 +21,10 @@ class OtpVerificationScreen extends StatefulWidget {
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final List<TextEditingController> _controllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isResending = false;
 
   @override
@@ -39,10 +40,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   String get _otpCode => _controllers.map((c) => c.text).join();
 
-  bool get _isOtpComplete => _otpCode.length == 4;
+  bool get _isOtpComplete => _otpCode.length == 6;
 
   void _onOtpDigitChanged(int index, String value) {
-    if (value.isNotEmpty && index < 3) {
+    if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
@@ -99,7 +100,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     setState(() => _isResending = true);
 
-    final success = await authProvider.resendOtp(email: email);
+    final success = await authProvider.resendOtp(email: email, type: widget.otpType);
 
     if (!mounted) return;
 
@@ -186,20 +187,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 SizedBox(height: screenHeight * 0.05),
 
                 // OTP Input Fields
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    return Container(
-                      margin: EdgeInsets.only(
-                        right: index < 3 ? 16 : 0,
-                      ),
-                      child: _OtpInputBox(
-                        controller: _controllers[index],
-                        focusNode: _focusNodes[index],
-                        onChanged: (value) => _onOtpDigitChanged(index, value),
-                      ),
-                    );
-                  }),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(6, (index) {
+                      return Container(
+                        margin: EdgeInsets.only(
+                          right: index < 5 ? 10 : 0,
+                        ),
+                        child: _OtpInputBox(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          onChanged: (value) => _onOtpDigitChanged(index, value),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
 
                 SizedBox(height: screenHeight * 0.04),
@@ -312,8 +317,8 @@ class _OtpInputBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 60,
-      height: 60,
+      width: 48,
+      height: 56,
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
@@ -326,7 +331,7 @@ class _OtpInputBox extends StatelessWidget {
         ],
         style: const TextStyle(
           fontFamily: 'Sora',
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),

@@ -9,6 +9,7 @@ import '../../core/enums/app_enums.dart';
 import '../../data/models/order_model.dart';
 import '../../data/repositories/order_repository.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/pattern_background.dart';
@@ -804,6 +805,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     final success = await orderProvider.cancelOrder(_order!.id);
 
     if (success && mounted) {
+      // Trigger cancellation notification
+      final notificationProvider = context.read<NotificationProvider>();
+      await notificationProvider.addOrderStatusNotification(
+        orderId: _order!.id,
+        orderNumber: _order!.orderNumber,
+        status: OrderStatus.cancelled,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Order cancelled successfully'),

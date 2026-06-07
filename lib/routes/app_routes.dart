@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../data/models/banner_model.dart' as models;
 import '../data/models/order_model.dart';
 import '../data/repositories/order_repository.dart';
 import '../screens/auth/forgot_password_screen.dart';
+import '../screens/banner/banner_detail_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/auth/reset_password_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/cart/cart_screen.dart';
 import '../screens/cart/redeem_coupon_screen.dart';
@@ -28,6 +31,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String otp = '/otp';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
@@ -47,6 +51,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
+  static const String bannerDetail = '/banner-detail';
 
   // Route generator
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -75,6 +80,15 @@ class AppRoutes {
           builder: (_) => const ForgotPasswordScreen(),
         );
 
+      case resetPassword:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => ResetPasswordScreen(
+            email: args?['email'] ?? '',
+          ),
+        );
+
       case otp:
         return MaterialPageRoute(
           settings: settings,
@@ -85,7 +99,10 @@ class AppRoutes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => OtpVerificationScreen(email: args?['email']),
+          builder: (_) => OtpVerificationScreen(
+            email: args?['email'],
+            otpType: args?['otpType'] ?? 'registration',
+          ),
         );
 
       case home:
@@ -169,6 +186,22 @@ class AppRoutes {
           ),
         );
 
+      case bannerDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final banner = args?['banner'] as models.Banner?;
+        if (banner == null) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (_) => const Scaffold(
+              body: Center(child: Text('Banner not found')),
+            ),
+          );
+        }
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BannerDetailScreen(banner: banner),
+        );
+
       case orderSuccess:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
@@ -179,8 +212,6 @@ class AppRoutes {
             payment: args?['payment'] as PaymentInfo?,
           ),
         );
-
-      // TODO: Add routes as screens are created
 
       default:
         return MaterialPageRoute(

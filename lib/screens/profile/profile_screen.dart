@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/theme/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
+import '../../routes/app_routes.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/pattern_background.dart';
 
@@ -76,56 +77,127 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showDeleteAccountDialog() {
+    final passwordController = TextEditingController();
+    bool isDeleting = false;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Delete Account',
-          style: TextStyle(
-            fontFamily: 'Sora',
-            fontWeight: FontWeight.w600,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
-          style: TextStyle(
-            fontFamily: 'Sora',
-            fontSize: 14,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
-                fontFamily: 'Sora',
-                color: AppColors.textPrimary,
-              ),
+          title: const Text(
+            'Delete Account',
+            style: TextStyle(
+              fontFamily: 'Sora',
+              fontWeight: FontWeight.w600,
             ),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account deletion requested'),
-                  backgroundColor: Colors.red,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Are you sure you want to delete your account? This action cannot be undone.',
+                style: TextStyle(
+                  fontFamily: 'Sora',
+                  fontSize: 14,
                 ),
-              );
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(
-                fontFamily: 'Sora',
-                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: passwordController,
+                hintText: 'Enter your password',
+                obscureText: true,
+                prefixIcon: const Icon(
+                  Icons.lock_outline,
+                  color: AppColors.grey,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isDeleting ? null : () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'Sora',
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
-          ),
-        ],
+            TextButton(
+              onPressed: isDeleting
+                  ? null
+                  : () async {
+                      final password = passwordController.text.trim();
+                      if (password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter your password'),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isDeleting = true);
+
+                      final authProvider = context.read<AuthProvider>();
+                      final success = await authProvider.deleteAccount(
+                        password: password,
+                      );
+
+                      if (!mounted) return;
+
+                      if (success) {
+                        Navigator.pop(dialogContext);
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          AppRoutes.login,
+                          (route) => false,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Account deleted successfully'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      } else {
+                        setDialogState(() => isDeleting = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              authProvider.errorMessage ??
+                                  'Failed to delete account',
+                            ),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
+                    },
+              child: isDeleting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.red,
+                      ),
+                    )
+                  : const Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontFamily: 'Sora',
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -274,10 +346,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           height: 100,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return _buildDefaultAvatar(firstName);
+                            return Image.asset(
+                              'assets/images/default_avatar.jpg',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            );
                           },
                         )
-                      : _buildDefaultAvatar(firstName),
+                      : Image.asset(
+                          'assets/images/default_avatar.jpg',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               Positioned(

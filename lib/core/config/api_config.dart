@@ -8,10 +8,18 @@ class ApiConfig {
 
   /// Base URL for the API
   /// Change this when switching environments (dev, staging, production)
-  static const String baseUrl = 'https://maicafe.workzin.com/api';
+  static const String baseUrl = 'https://dev.maicafeuk.com/api';
 
   /// Storage URL for media files (images, etc.)
-  static const String storageUrl = 'https://maicafe.workzin.com/storage';
+  static const String storageUrl = 'https://dev.maicafeuk.com/storage';
+
+  /// Host of [baseUrl] — used for the dev-only TLS exception (see main.dart).
+  static const String host = 'dev.maicafeuk.com';
+
+  /// Whether we are pointing at the dev backend. The dev host currently serves
+  /// a mismatched shared-hosting certificate (CN=*.web-hosting.com), so the
+  /// app must explicitly trust it. NEVER ship a production build with this on.
+  static const bool isDev = true;
 
   /// API Timeout duration in seconds
   static const int timeoutSeconds = 30;
@@ -25,12 +33,17 @@ class ApiConfig {
   static const String register = '/auth/register';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
-  static const String verifyOtp = '/auth/verify-otp';
+  static const String verifyOtp = '/auth/verify-email';
   static const String resendOtp = '/auth/resend-otp';
   static const String logout = '/auth/logout';
 
   // ============== User Endpoints ==============
   static const String profile = '/user/profile';
+  static const String deleteAccount = '/user/account';
+
+  /// POST /user/fcm-token — register/update device FCM token
+  /// DELETE /user/fcm-token — clear token on logout
+  static const String fcmToken = '/user/fcm-token';
 
   // ============== Product Endpoints ==============
   /// GET /categories - List all categories
@@ -108,6 +121,9 @@ class ApiConfig {
   /// POST /wishlist - Add product to wishlist (body: {"product_id": id})
   static const String wishlist = '/wishlist';
 
+  /// GET /wishlist/count - Get wishlist item count
+  static const String wishlistCount = '/wishlist/count';
+
   /// DELETE /wishlist/{productId} - Remove product from wishlist
   /// Use: '$wishlistRemove/$productId'
   static const String wishlistRemove = '/wishlist';
@@ -156,7 +172,7 @@ class ApiConfig {
 
   /// Get full image URL from relative path
   /// Handles both relative paths (e.g., 'categories/image.png') and full URLs
-  /// Example: getImageUrl('categories/image.png') => 'https://maicafe.workzin.com/storage/categories/image.png'
+  /// Example: getImageUrl('categories/image.png') => 'https://maicafeuk.com/storage/categories/image.png'
   static String? getImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
 

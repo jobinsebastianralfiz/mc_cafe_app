@@ -12,34 +12,6 @@ class RedeemCouponScreen extends StatefulWidget {
 
 class _RedeemCouponScreenState extends State<RedeemCouponScreen> {
   final TextEditingController _couponController = TextEditingController();
-  int? _expandedIndex;
-
-  final List<Map<String, dynamic>> _availableCoupons = [
-    {
-      'title': 'Refer & Earn: Rs 100 Cashback',
-      'expiry': '25-01-26',
-      'code': 'REFER100',
-      'description': 'Refer a friend and earn Rs 100 cashback on your next order.',
-    },
-    {
-      'title': '2 Medium Hand Tea',
-      'expiry': '05-02-26',
-      'code': 'TEA2FREE',
-      'description': 'Get 2 medium hand tea free on orders above Rs 500.',
-    },
-    {
-      'title': 'Get 15% OFF on Min. Orders',
-      'expiry': '15-03-26',
-      'code': 'SAVE15',
-      'description': 'Get 15% off on minimum orders of Rs 300.',
-    },
-    {
-      'title': 'Refer & Earn: Rs 200 Cashback',
-      'expiry': '22-04-26',
-      'code': 'REFER200',
-      'description': 'Refer 2 friends and earn Rs 200 cashback.',
-    },
-  ];
 
   @override
   void dispose() {
@@ -74,16 +46,6 @@ class _RedeemCouponScreenState extends State<RedeemCouponScreen> {
 
                         // Coupon Input Card
                         _buildCouponInputCard(),
-
-                        const SizedBox(height: 24),
-
-                        // Available Coupons
-                        ..._availableCoupons.asMap().entries.map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildCouponCard(entry.key, entry.value),
-                          );
-                        }),
 
                         const SizedBox(height: 24),
                       ],
@@ -127,7 +89,7 @@ class _RedeemCouponScreenState extends State<RedeemCouponScreen> {
           // Title
           const Expanded(
             child: Text(
-              'Redeem Coupen',
+              'Redeem Coupon',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Sora',
@@ -281,151 +243,4 @@ class _RedeemCouponScreenState extends State<RedeemCouponScreen> {
     );
   }
 
-  Widget _buildCouponCard(int index, Map<String, dynamic> coupon) {
-    final isExpanded = _expandedIndex == index;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _expandedIndex = isExpanded ? null : index;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        coupon['title'],
-                        style: const TextStyle(
-                          fontFamily: 'Sora',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textHeading,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Expire on : ${coupon['expiry']}',
-                        style: const TextStyle(
-                          fontFamily: 'Sora',
-                          fontSize: 14,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                AnimatedRotation(
-                  turns: isExpanded ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: AppColors.grey,
-                    size: 28,
-                  ),
-                ),
-              ],
-            ),
-
-            // Expanded content
-            AnimatedCrossFade(
-              firstChild: const SizedBox.shrink(),
-              secondChild: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  const Divider(height: 1),
-                  const SizedBox(height: 12),
-                  Text(
-                    coupon['description'],
-                    style: const TextStyle(
-                      fontFamily: 'Sora',
-                      fontSize: 13,
-                      color: AppColors.textPrimary,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBackground,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: AppColors.primary,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        child: Text(
-                          coupon['code'],
-                          style: const TextStyle(
-                            fontFamily: 'Sora',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => _applyCoupon(coupon['code']),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Apply',
-                            style: TextStyle(
-                              fontFamily: 'Sora',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              crossFadeState: isExpanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 200),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

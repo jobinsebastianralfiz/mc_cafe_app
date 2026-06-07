@@ -1,3 +1,4 @@
+import '../../core/utils/json_parsers.dart';
 import 'product_model.dart';
 
 /// Cart Model
@@ -67,12 +68,12 @@ class Cart {
     }
 
     return Cart(
-      id: json['id'] as int? ?? 0,
-      storeId: json['store_id'] as int?,
+      id: parseInt(json['id']),
+      storeId: parseIntNullable(json['store_id']),
       items: (itemsList as List)
           .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      itemsCount: json['items_count'] as int? ?? 0,
+      itemsCount: parseInt(json['items_count']),
       couponCode: json['coupon_code'] as String?,
       notes: json['notes'] as String?,
       summary: summary,
@@ -307,17 +308,17 @@ class CartItem {
   /// Create CartItem from JSON
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      id: json['id'] as int,
-      productId: json['product_id'] as int,
+      id: parseInt(json['id']),
+      productId: parseInt(json['product_id']),
       productName: json['product_name'] as String? ??
           (json['product'] is Map ? json['product']['name'] as String? : null) ??
           '',
       productImage: json['product_image'] as String? ??
           (json['product'] is Map ? json['product']['image'] as String? : null),
-      variantId: json['variant_id'] as int?,
+      variantId: parseIntNullable(json['variant_id']),
       variantName: json['variant_name'] as String?,
       unitPrice: Cart._parseDouble(json['unit_price'] ?? json['price']),
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: parseInt(json['quantity'], defaultValue: 1),
       addons: json['addons'] != null && (json['addons'] as List).isNotEmpty
           ? (json['addons'] as List)
               .map((e) => CartItemAddon.fromJson(e as Map<String, dynamic>))
@@ -427,10 +428,10 @@ class CartItemAddon {
 
   factory CartItemAddon.fromJson(Map<String, dynamic> json) {
     return CartItemAddon(
-      id: json['id'] as int? ?? 0,
+      id: parseInt(json['id']),
       name: json['name'] as String? ?? '',
       price: Cart._parseDouble(json['price']),
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: parseInt(json['quantity'], defaultValue: 1),
     );
   }
 

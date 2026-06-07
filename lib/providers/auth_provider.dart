@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../core/enums/app_enums.dart';
 import '../core/exceptions/api_exception.dart';
+import '../core/services/notification_service.dart';
 import '../data/models/user_model.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/requests/auth_requests.dart';
@@ -24,6 +27,7 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _isGuest = false;
 
   // ============== Getters ==============
 
@@ -35,6 +39,18 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _status == AuthStatus.authenticated;
   bool get isUnauthenticated => _status == AuthStatus.unauthenticated;
   bool get isPendingVerification => _status == AuthStatus.pendingVerification;
+
+  /// True when the user chose "Browse as Guest" and is not authenticated.
+  /// Account-based actions (cart, checkout, wishlist, orders, profile) should
+  /// prompt for login when this is true.
+  bool get isGuest => _isGuest && !isAuthenticated;
+
+  /// Enter guest browsing mode (called from the splash "Browse as Guest" CTA).
+  void continueAsGuest() {
+    _isGuest = true;
+    _status = AuthStatus.unauthenticated;
+    notifyListeners();
+  }
 
   // ============== Initialization ==============
 
@@ -57,6 +73,8 @@ class AuthProvider extends ChangeNotifier {
           if (isValid) {
             _user = _repository.storedUser;
             _status = AuthStatus.authenticated;
+            // Refresh FCM token registration on app start.
+            unawaited(NotificationService.instance.registerFcmToken());
           } else {
             _status = AuthStatus.unauthenticated;
             _user = null;
@@ -129,6 +147,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Login user
+  /// After login, OTP is sent to user's email for verification
   Future<bool> login({
     required String email,
     required String password,
@@ -147,7 +166,7 @@ class AuthProvider extends ChangeNotifier {
           role: 'customer',
           loyaltyPoints: 100,
         );
-        _status = AuthStatus.authenticated;
+        _status = AuthStatus.pendingVerification;
         _setLoading(false);
         return true;
       }
@@ -158,7 +177,14 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _user = await _repository.login(request);
-      _status = AuthStatus.authenticated;
+
+      // Check if token was saved (user already verified) or OTP needed
+      if (_repository.isLoggedIn) {
+        _status = AuthStatus.authenticated;
+        unawaited(NotificationService.instance.registerFcmToken());
+      } else {
+        _status = AuthStatus.pendingVerification;
+      }
       _setLoading(false);
       return true;
     } on ApiException catch (e) {
@@ -184,12 +210,12 @@ class AuthProvider extends ChangeNotifier {
       if (_mockMode) {
         // Mock OTP verification - accept any 4-digit OTP
         await Future.delayed(const Duration(milliseconds: 500));
-        if (otp.length == 4) {
+        if (otp.length == 6) {
           _status = AuthStatus.authenticated;
           _setLoading(false);
           return true;
         } else {
-          _setError('Please enter a 4-digit OTP');
+          _setError('Please enter a 6-digit OTP');
           _setLoading(false);
           return false;
         }
@@ -202,7 +228,10 @@ class AuthProvider extends ChangeNotifier {
 
       final success = await _repository.verifyOtp(request);
       if (success) {
+        // Load user from stored data (saved during verifyOtp if token returned)
+        _user = _repository.storedUser ?? _user;
         _status = AuthStatus.authenticated;
+        unawaited(NotificationService.instance.registerFcmToken());
       }
       _setLoading(false);
       return success;
@@ -218,7 +247,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Resend OTP
-  Future<bool> resendOtp({required String email}) async {
+  Future<bool> resendOtp({required String email, String type = 'registration'}) async {
     _setLoading(true);
     _clearError();
 
@@ -230,7 +259,7 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
 
-      final request = ResendOtpRequest(email: email);
+      final request = ResendOtpRequest(email: email, type: type);
       final success = await _repository.resendOtp(request);
       _setLoading(false);
       return success;
@@ -276,7 +305,7 @@ class AuthProvider extends ChangeNotifier {
   /// Reset password
   Future<bool> resetPassword({
     required String email,
-    required String token,
+    required String otp,
     required String password,
     required String passwordConfirmation,
   }) async {
@@ -286,7 +315,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final request = ResetPasswordRequest(
         email: email,
-        token: token,
+        otp: otp,
         password: password,
         passwordConfirmation: passwordConfirmation,
       );
@@ -377,9 +406,38 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Delete account
+  Future<bool> deleteAccount({required String password}) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final success = await _repository.deleteAccount(password);
+      if (success) {
+        await _repository.logout();
+        _user = null;
+        _status = AuthStatus.unauthenticated;
+      }
+      _setLoading(false);
+      return success;
+    } on ApiException catch (e) {
+      _setError(e.message);
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      _setError('Failed to delete account. Please try again.');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   /// Logout user
   Future<void> logout() async {
     _setLoading(true);
+
+    // Clear FCM token on the backend BEFORE clearing local auth — the request
+    // needs the auth token to identify the device.
+    await NotificationService.instance.clearFcmToken();
 
     await _repository.logout();
 

@@ -70,3 +70,8 @@ coverage/
 
 # Pubspec lock (optional - uncomment if you want to ignore)
 # pubspec.lock
+
+# Local-only artifacts (screenshots, reports) — not for VCS
+/Screenshot*.png
+/simulator_screenshot_*.png
+/MaiCafe_AppStore_Rejection_Report.pdf

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import '../../core/config/api_config.dart';
 import '../../core/services/api_service.dart';
 import '../models/cart_model.dart';
@@ -27,15 +25,10 @@ class CartRepository {
   /// Get cart contents
   /// GET /cart
   Future<Cart> getCart() async {
-    debugPrint('🔵 [CartRepo] getCart called');
-
     final response = await _apiService.get(ApiConfig.cart);
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
-      debugPrint('🟡 [CartRepo] data is null, returning empty cart');
       return Cart.empty();
     }
 
@@ -51,9 +44,6 @@ class CartRepository {
     List<Map<String, dynamic>>? addons,
     String? specialInstructions,
   }) async {
-    debugPrint('🔵 [CartRepo] addToCart called');
-    debugPrint('🔵 [CartRepo] productId: $productId, variantId: $variantId, quantity: $quantity');
-
     final body = <String, dynamic>{
       'product_id': productId,
       'quantity': quantity,
@@ -71,18 +61,14 @@ class CartRepository {
       body['special_instructions'] = specialInstructions;
     }
 
-    debugPrint('🔵 [CartRepo] Body: $body');
-
     final response = await _apiService.post(
       ApiConfig.cartItems,
       body: body,
     );
 
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
-
     final data = response['data'];
     if (data == null) {
-      throw Exception('Failed to add item to cart');
+      throw Exception('addToCart: no data in response');
     }
 
     return Cart.fromJson(data as Map<String, dynamic>);
@@ -91,15 +77,10 @@ class CartRepository {
   /// Update cart item quantity
   /// PUT /cart/items/{id}
   Future<Cart> updateCartItem(int cartItemId, int quantity) async {
-    debugPrint('🔵 [CartRepo] updateCartItem called');
-    debugPrint('🔵 [CartRepo] cartItemId: $cartItemId, quantity: $quantity');
-
     final response = await _apiService.put(
       '${ApiConfig.cartItemById}/$cartItemId',
       body: {'quantity': quantity},
     );
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
@@ -112,14 +93,9 @@ class CartRepository {
   /// Remove item from cart
   /// DELETE /cart/items/{id}
   Future<Cart> removeFromCart(int cartItemId) async {
-    debugPrint('🔵 [CartRepo] removeFromCart called');
-    debugPrint('🔵 [CartRepo] cartItemId: $cartItemId');
-
     final response = await _apiService.delete(
       '${ApiConfig.cartItemById}/$cartItemId',
     );
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
@@ -133,11 +109,7 @@ class CartRepository {
   /// Get cart item count
   /// GET /cart/count
   Future<int> getCartCount() async {
-    debugPrint('🔵 [CartRepo] getCartCount called');
-
     final response = await _apiService.get(ApiConfig.cartCount);
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data is Map<String, dynamic>) {
@@ -150,15 +122,10 @@ class CartRepository {
   /// Apply coupon to cart
   /// POST /cart/coupon
   Future<Cart> applyCoupon(String couponCode) async {
-    debugPrint('🔵 [CartRepo] applyCoupon called');
-    debugPrint('🔵 [CartRepo] couponCode: $couponCode');
-
     final response = await _apiService.post(
       ApiConfig.cartCoupon,
       body: {'coupon_code': couponCode},
     );
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
@@ -171,11 +138,7 @@ class CartRepository {
   /// Remove coupon from cart
   /// DELETE /cart/coupon
   Future<Cart> removeCoupon() async {
-    debugPrint('🔵 [CartRepo] removeCoupon called');
-
     final response = await _apiService.delete(ApiConfig.cartCoupon);
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
@@ -188,15 +151,10 @@ class CartRepository {
   /// Update cart notes
   /// PUT /cart/notes
   Future<Cart> updateNotes(String notes) async {
-    debugPrint('🔵 [CartRepo] updateNotes called');
-    debugPrint('🔵 [CartRepo] notes: $notes');
-
     final response = await _apiService.put(
       ApiConfig.cartNotes,
       body: {'notes': notes},
     );
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     final data = response['data'];
     if (data == null) {
@@ -209,11 +167,7 @@ class CartRepository {
   /// Clear entire cart
   /// DELETE /cart/clear
   Future<bool> clearCart() async {
-    debugPrint('🔵 [CartRepo] clearCart called');
-
     final response = await _apiService.delete(ApiConfig.cartClear);
-
-    debugPrint('🔵 [CartRepo] Response: ${response.data}');
 
     return response['success'] == true;
   }

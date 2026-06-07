@@ -46,8 +46,6 @@ class CartProvider extends ChangeNotifier {
 
   /// Load cart from API
   Future<void> loadCart({bool forceRefresh = false}) async {
-    debugPrint('🔵 [CartProvider] loadCart called, forceRefresh: $forceRefresh');
-
     if (_status == LoadingStatus.loading && !forceRefresh) return;
     if (_status == LoadingStatus.success && !forceRefresh) return;
 
@@ -57,14 +55,11 @@ class CartProvider extends ChangeNotifier {
 
     try {
       _cart = await _repository.getCart();
-      debugPrint('🟢 [CartProvider] Cart loaded: ${_cart.items.length} items');
       _status = LoadingStatus.success;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to load cart');
       _status = LoadingStatus.error;
     }
@@ -82,9 +77,6 @@ class CartProvider extends ChangeNotifier {
     List<Addon>? addons,
     String? specialInstructions,
   }) async {
-    debugPrint('🔵 [CartProvider] addToCart called');
-    debugPrint('🔵 [CartProvider] product: ${product.name}, variant: ${variant?.name}, quantity: $quantity');
-
     _status = LoadingStatus.loading;
     _clearError();
     notifyListeners();
@@ -107,19 +99,16 @@ class CartProvider extends ChangeNotifier {
         specialInstructions: specialInstructions,
       );
 
-      debugPrint('🟢 [CartProvider] Item added. Cart now has ${_cart.items.length} items');
       _status = LoadingStatus.success;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
-      _setError(e.message);
+      _setError('${e.message} [${e.statusCode}]');
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
-      _setError('Failed to add item to cart');
+      _setError('Failed to add item to cart: $e');
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
@@ -130,9 +119,6 @@ class CartProvider extends ChangeNotifier {
 
   /// Update cart item quantity
   Future<bool> updateQuantity(int cartItemId, int quantity) async {
-    debugPrint('🔵 [CartProvider] updateQuantity called');
-    debugPrint('🔵 [CartProvider] cartItemId: $cartItemId, quantity: $quantity');
-
     if (quantity < 1) {
       return removeFromCart(cartItemId);
     }
@@ -142,18 +128,15 @@ class CartProvider extends ChangeNotifier {
 
     try {
       _cart = await _repository.updateCartItem(cartItemId, quantity);
-      debugPrint('🟢 [CartProvider] Quantity updated');
       _status = LoadingStatus.success;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to update quantity');
       _status = LoadingStatus.error;
       notifyListeners();
@@ -165,26 +148,20 @@ class CartProvider extends ChangeNotifier {
 
   /// Remove item from cart
   Future<bool> removeFromCart(int cartItemId) async {
-    debugPrint('🔵 [CartProvider] removeFromCart called');
-    debugPrint('🔵 [CartProvider] cartItemId: $cartItemId');
-
     _status = LoadingStatus.loading;
     notifyListeners();
 
     try {
       _cart = await _repository.removeFromCart(cartItemId);
-      debugPrint('🟢 [CartProvider] Item removed. Cart now has ${_cart.items.length} items');
       _status = LoadingStatus.success;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to remove item');
       _status = LoadingStatus.error;
       notifyListeners();
@@ -196,8 +173,6 @@ class CartProvider extends ChangeNotifier {
 
   /// Clear all items from cart
   Future<bool> clearCart() async {
-    debugPrint('🔵 [CartProvider] clearCart called');
-
     _status = LoadingStatus.loading;
     notifyListeners();
 
@@ -205,19 +180,16 @@ class CartProvider extends ChangeNotifier {
       final success = await _repository.clearCart();
       if (success) {
         _cart = Cart.empty();
-        debugPrint('🟢 [CartProvider] Cart cleared');
       }
       _status = LoadingStatus.success;
       notifyListeners();
       return success;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to clear cart');
       _status = LoadingStatus.error;
       notifyListeners();
@@ -229,25 +201,20 @@ class CartProvider extends ChangeNotifier {
 
   /// Apply coupon to cart
   Future<bool> applyCoupon(String couponCode) async {
-    debugPrint('🔵 [CartProvider] applyCoupon called: $couponCode');
-
     _status = LoadingStatus.loading;
     notifyListeners();
 
     try {
       _cart = await _repository.applyCoupon(couponCode);
-      debugPrint('🟢 [CartProvider] Coupon applied');
       _status = LoadingStatus.success;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to apply coupon');
       _status = LoadingStatus.error;
       notifyListeners();
@@ -257,25 +224,20 @@ class CartProvider extends ChangeNotifier {
 
   /// Remove coupon from cart
   Future<bool> removeCoupon() async {
-    debugPrint('🔵 [CartProvider] removeCoupon called');
-
     _status = LoadingStatus.loading;
     notifyListeners();
 
     try {
       _cart = await _repository.removeCoupon();
-      debugPrint('🟢 [CartProvider] Coupon removed');
       _status = LoadingStatus.success;
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
       notifyListeners();
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to remove coupon');
       _status = LoadingStatus.error;
       notifyListeners();
@@ -287,19 +249,14 @@ class CartProvider extends ChangeNotifier {
 
   /// Update cart notes
   Future<bool> updateNotes(String notes) async {
-    debugPrint('🔵 [CartProvider] updateNotes called');
-
     try {
       _cart = await _repository.updateNotes(notes);
-      debugPrint('🟢 [CartProvider] Notes updated');
       notifyListeners();
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [CartProvider] ApiException: ${e.message}');
       _setError(e.message);
       return false;
     } catch (e) {
-      debugPrint('🔴 [CartProvider] Error: $e');
       _setError('Failed to update notes');
       return false;
     }

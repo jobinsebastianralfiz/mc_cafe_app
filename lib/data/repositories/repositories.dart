@@ -2,6 +2,7 @@
 
 export 'auth_repository.dart';
 export 'cart_repository.dart';
+export 'notification_repository.dart';
 export 'order_repository.dart';
 export 'product_repository.dart';
 export 'wishlist_repository.dart';

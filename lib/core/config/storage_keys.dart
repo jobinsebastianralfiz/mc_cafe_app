@@ -90,6 +90,13 @@ class StorageKeys {
   /// Banners cache timestamp
   static const String bannersCacheTime = 'banners_cache_time';
 
+  // ============== Notification Keys ==============
+  /// Local notifications list as JSON string
+  static const String notifications = 'notifications';
+
+  /// Last notification sync timestamp
+  static const String notificationsSyncTime = 'notifications_sync_time';
+
   // ============== FCM Keys ==============
   /// Firebase Cloud Messaging token
   static const String fcmToken = 'fcm_token';

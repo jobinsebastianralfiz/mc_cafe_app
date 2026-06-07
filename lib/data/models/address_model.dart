@@ -1,4 +1,5 @@
 import '../../core/enums/app_enums.dart';
+import '../../core/utils/json_parsers.dart';
 
 /// Address Model
 ///
@@ -47,8 +48,8 @@ class Address {
   /// Create Address from JSON
   factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
-      id: json['id'] as int,
-      userId: json['user_id'] as int? ?? 0,
+      id: parseInt(json['id']),
+      userId: parseInt(json['user_id']),
       type: AddressType.fromValue(json['type'] as String? ?? 'other'),
       label: json['label'] as String?,
       addressLine1: json['address_line_1'] as String? ??

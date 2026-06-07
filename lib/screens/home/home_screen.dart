@@ -10,10 +10,13 @@ import '../../config/theme/app_colors.dart';
 import '../../core/config/api_config.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/enums/app_enums.dart';
+import '../../core/utils/auth_guard.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/animated_list_item.dart';
 import '../../widgets/app_drawer.dart';
@@ -42,6 +45,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _selectedCategoryIndex = -1; // -1 means "All" selected
   int _selectedDrawerIndex = 0;
   bool _isSearchMode = false;
+  bool _isFilterMode = false;
+  String _selectedTypeTab = 'cafe'; // 'cafe' or 'restaurant'
   String? _lastOrderStatus; // Track last status for vibration
 
   @override
@@ -51,7 +56,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // Load home data after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
-      _startOrderPolling();
+      // Order polling is account-based — only for authenticated users.
+      if (context.read<AuthProvider>().isAuthenticated) {
+        _startOrderPolling();
+      }
     });
   }
 
@@ -68,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Resume polling when app comes to foreground
     if (state == AppLifecycleState.resumed) {
-      _startOrderPolling();
+      if (context.read<AuthProvider>().isAuthenticated) {
+        _startOrderPolling();
+      }
     } else if (state == AppLifecycleState.paused) {
       _stopOrderPolling();
     }
@@ -99,12 +109,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return;
     }
 
-    final newStatus = updatedOrders.first.status.value;
+    final order = updatedOrders.first;
+    final newStatus = order.status.value;
 
     // Check if status changed
     if (_lastOrderStatus != null && _lastOrderStatus != newStatus) {
       // Vibrate on status change
       HapticFeedback.heavyImpact();
+
+      // Trigger notification for status change
+      if (mounted) {
+        final notificationProvider = context.read<NotificationProvider>();
+        await notificationProvider.addOrderStatusNotification(
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          itemsSummary: order.items.isNotEmpty ? order.items.first.productName : null,
+        );
+      }
     }
 
     _lastOrderStatus = newStatus;
@@ -132,28 +154,69 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _loadData() async {
     final productProvider = context.read<ProductProvider>();
-    final cartProvider = context.read<CartProvider>();
-    final orderProvider = context.read<OrderProvider>();
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
 
-    // Load product data, cart, and orders in parallel
-    await Future.wait([
+    // Public catalog data — loads for guests and authenticated users alike.
+    final tasks = <Future>[
       productProvider.loadHomeData(),
-      cartProvider.loadCart(),
-      orderProvider.loadOrders(refresh: true),
-    ]);
+      productProvider.loadProducts(refresh: true),
+    ];
+
+    // Account-based data — only for authenticated users. Loading these as a
+    // guest would 401 and trigger the global auto-logout/redirect.
+    if (isAuthenticated) {
+      tasks.addAll([
+        context.read<CartProvider>().loadCart(),
+        context.read<OrderProvider>().loadOrders(refresh: true),
+        context.read<WishlistProvider>().loadWishlist(),
+      ]);
+    }
+
+    await Future.wait(tasks);
   }
 
   Future<void> _refreshData() async {
     final productProvider = context.read<ProductProvider>();
+    final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
+
+    final tasks = <Future>[
+      productProvider.loadHomeData(forceRefresh: true),
+    ];
+
+    if (isAuthenticated) {
+      tasks.addAll([
+        context.read<CartProvider>().loadCart(forceRefresh: true),
+        context.read<OrderProvider>().loadOrders(refresh: true),
+      ]);
+    }
+
+    await Future.wait(tasks);
+  }
+
+  Future<void> _handleLogout() async {
+    // Clear all provider data
+    final authProvider = context.read<AuthProvider>();
     final cartProvider = context.read<CartProvider>();
     final orderProvider = context.read<OrderProvider>();
+    final wishlistProvider = context.read<WishlistProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
 
-    // Refresh product data, cart, and orders in parallel
-    await Future.wait([
-      productProvider.loadHomeData(forceRefresh: true),
-      cartProvider.loadCart(forceRefresh: true),
-      orderProvider.loadOrders(refresh: true),
-    ]);
+    // Logout from auth (clears token and user data from storage)
+    await authProvider.logout();
+
+    // Reset all providers
+    cartProvider.resetCart();
+    orderProvider.reset();
+    wishlistProvider.clearWishlist();
+    notificationProvider.reset();
+
+    // Stop polling
+    _stopOrderPolling();
+
+    // Navigate to login
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    }
   }
 
   void _openDrawer() {
@@ -163,44 +226,57 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void _onDrawerItemTap(int index) {
     Navigator.pop(context); // Close drawer
 
+    if (index == -2) {
+      // Guest "Login" entry
+      Navigator.pushNamed(context, AppRoutes.login);
+      return;
+    }
+
     if (index == -1) {
-      // Logout
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      // Logout - clear all data and navigate to login
+      _handleLogout();
       return;
     }
 
     if (index == 1) {
-      // Products
+      // Products (public)
       Navigator.pushNamed(context, AppRoutes.products);
       return;
     }
 
     if (index == 2) {
       // Orders
+      if (!AuthGuard.requireAuth(context, action: 'view your orders')) return;
       Navigator.pushNamed(context, AppRoutes.orders);
       return;
     }
 
     if (index == 3) {
       // Notifications
+      if (!AuthGuard.requireAuth(context, action: 'view notifications')) return;
       Navigator.pushNamed(context, AppRoutes.notifications);
       return;
     }
 
     if (index == 4) {
       // Wishlist
+      if (!AuthGuard.requireAuth(context, action: 'view your wishlist')) return;
       Navigator.pushNamed(context, AppRoutes.wishlist);
       return;
     }
 
     if (index == 5) {
       // Profile
+      if (!AuthGuard.requireAuth(context, action: 'view your profile')) return;
       Navigator.pushNamed(context, AppRoutes.profile);
       return;
     }
 
     if (index == 6) {
       // My Address
+      if (!AuthGuard.requireAuth(context, action: 'manage your addresses')) {
+        return;
+      }
       Navigator.pushNamed(context, AppRoutes.myAddress);
       return;
     }
@@ -211,9 +287,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _onNavTap(int index) {
+    // Wishlist (1), Cart (2) and Profile (3) are account-based — gate guests.
+    if (index == 1 &&
+        !AuthGuard.requireAuth(context, action: 'view your wishlist')) {
+      return;
+    }
     if (index == 2) {
       // Cart - push as separate screen
+      if (!AuthGuard.requireAuth(context, action: 'view your cart')) return;
       Navigator.pushNamed(context, AppRoutes.cart);
+      return;
+    }
+    if (index == 3 &&
+        !AuthGuard.requireAuth(context, action: 'view your profile')) {
       return;
     }
     setState(() {
@@ -271,6 +357,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                         const SizedBox(height: 24),
 
+                        // Type tabs (Coffee / Cafe/Restaurant)
+                        _buildTypeTabs(),
+
+                        const SizedBox(height: 20),
+
                         // Categories section
                         _buildCategoriesSection(),
 
@@ -307,12 +398,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         selectedIndex: _selectedDrawerIndex,
         onItemTap: _onDrawerItemTap,
         onClose: () => Navigator.pop(context),
+        isGuest: context.watch<AuthProvider>().isGuest,
       ),
       body: _getBodyForIndex(_currentNavIndex),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentNavIndex,
         onTap: _onNavTap,
         cartCount: cartProvider.itemCount,
+        wishlistCount: context.watch<WishlistProvider>().itemCount,
       ),
     );
   }
@@ -351,10 +444,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     height: 48,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return _buildDefaultAvatar(firstName);
+                      return Image.asset(
+                        'assets/images/default_avatar.jpg',
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                      );
                     },
                   )
-                : _buildDefaultAvatar(firstName),
+                : Image.asset(
+                    'assets/images/default_avatar.jpg',
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
           ),
         ),
 
@@ -402,6 +505,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         // Notification icon
         GestureDetector(
           onTap: () {
+            if (!AuthGuard.requireAuth(context, action: 'view notifications')) {
+              return;
+            }
             Navigator.pushNamed(context, AppRoutes.notifications);
           },
           child: Image.asset(
@@ -680,27 +786,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  void _showFilterBottomSheet() {
-    showModalBottomSheet(
+  Future<void> _showFilterBottomSheet() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _FilterBottomSheet(
-        onApply: (minPrice, maxPrice, sortBy) {
-          final productProvider = context.read<ProductProvider>();
-          productProvider.loadProducts(
-            minPrice: minPrice,
-            maxPrice: maxPrice,
-            sort: sortBy,
-            refresh: true,
-          );
-          setState(() {
-            _selectedCategoryIndex = -1;
-            _isSearchMode = false;
-          });
-          _searchController.clear();
-        },
-      ),
+      builder: (_) => const _FilterBottomSheet(),
+    );
+
+    if (!mounted || result == null) return;
+
+    setState(() {
+      _selectedCategoryIndex = -1;
+      _isSearchMode = false;
+      _isFilterMode = true;
+    });
+    _searchController.clear();
+
+    context.read<ProductProvider>().loadProducts(
+      minPrice: result['minPrice'] as double?,
+      maxPrice: result['maxPrice'] as double?,
+      sort: result['sortBy'] as String?,
+      refresh: true,
     );
   }
 
@@ -728,33 +835,41 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           itemBuilder: (context, index) {
             final banner = banners[index];
             final imageUrl = ApiConfig.getImageUrl(banner.image);
-            debugPrint('🖼️ Banner ${banner.id}: image=${banner.image}, url=$imageUrl');
 
-            return Container(
-              width: MediaQuery.of(context).size.width - 100,
-              margin: EdgeInsets.only(
-                left: index == 0 ? 0 : 8,
-                right: index == banners.length - 1 ? 0 : 8,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: imageUrl != null && imageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        height: 140,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: AppColors.lightGrey,
-                          highlightColor: AppColors.white,
-                          child: Container(
-                            height: 140,
-                            color: AppColors.lightGrey,
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.bannerDetail,
+                  arguments: {'banner': banner},
+                );
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width - 100,
+                margin: EdgeInsets.only(
+                  left: index == 0 ? 0 : 8,
+                  right: index == banners.length - 1 ? 0 : 8,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: imageUrl != null && imageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          height: 140,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: AppColors.lightGrey,
+                            highlightColor: AppColors.white,
+                            child: Container(
+                              height: 140,
+                              color: AppColors.lightGrey,
+                            ),
                           ),
-                        ),
-                        errorWidget: (context, url, error) => _buildBannerPlaceholder(banner.title),
-                      )
-                    : _buildBannerPlaceholder(banner.title),
+                          errorWidget: (context, url, error) => _buildBannerPlaceholder(banner.title),
+                        )
+                      : _buildBannerPlaceholder(banner.title),
+                ),
               ),
             );
           },
@@ -793,63 +908,118 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildTypeTabs() {
+    return FadeInWidget(
+      delay: const Duration(milliseconds: 250),
+      child: Row(
+        children: [
+          _buildTypeTab('Coffee', 'cafe'),
+          const SizedBox(width: 24),
+          _buildTypeTab('Cafe/Restaurant', 'restaurant'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeTab(String label, String type) {
+    final isSelected = _selectedTypeTab == type;
+    return GestureDetector(
+      onTap: () {
+        if (_selectedTypeTab != type) {
+          setState(() {
+            _selectedTypeTab = type;
+            _selectedCategoryIndex = -1;
+            _isFilterMode = false;
+          });
+          // Reload featured products for the new type
+          context.read<ProductProvider>().loadFeaturedProducts(forceRefresh: true);
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Sora',
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: isSelected ? AppColors.textHeading : AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 3,
+            width: isSelected ? 30 : 0,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoriesSection() {
     final productProvider = context.watch<ProductProvider>();
-    final categories = productProvider.categories;
+    final allCategories = productProvider.categories;
+    final filteredCategories = allCategories
+        .where((c) => c.type == _selectedTypeTab)
+        .toList();
     final isLoading = productProvider.categoriesStatus == LoadingStatus.loading;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FadeInWidget(
-          delay: const Duration(milliseconds: 300),
-          child: const Text(
-            'Categories',
-            style: TextStyle(
-              fontFamily: 'Sora',
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textHeading,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         SizedBox(
           height: 120,
-          child: isLoading && categories.isEmpty
+          child: isLoading && allCategories.isEmpty
               ? ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: 5,
                   separatorBuilder: (context, index) => const SizedBox(width: 16),
                   itemBuilder: (context, index) => const ShimmerCategoryIcon(),
                 )
-              : ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 16),
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    return AnimatedListItem(
-                      index: index,
-                      delay: const Duration(milliseconds: 80),
-                      child: CategoryIcon(
-                        imageUrl: ApiConfig.getImageUrl(category.image),
-                        label: category.name,
-                        isSelected: _selectedCategoryIndex == index,
-                        onTap: () {
-                          setState(() {
-                            _selectedCategoryIndex = index;
-                          });
-                          // Load products for this category
-                          productProvider.loadProducts(
-                            categoryId: category.id,
-                            refresh: true,
-                          );
-                        },
+              : filteredCategories.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No categories available',
+                        style: TextStyle(
+                          fontFamily: 'Sora',
+                          fontSize: 14,
+                          color: AppColors.textMuted,
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    )
+                  : ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: filteredCategories.length,
+                      separatorBuilder: (context, index) => const SizedBox(width: 16),
+                      itemBuilder: (context, index) {
+                        final category = filteredCategories[index];
+                        return AnimatedListItem(
+                          index: index,
+                          delay: const Duration(milliseconds: 80),
+                          child: CategoryIcon(
+                            imageUrl: ApiConfig.getImageUrl(category.image),
+                            label: category.name,
+                            isSelected: _selectedCategoryIndex == index,
+                            onTap: () {
+                              setState(() {
+                                _selectedCategoryIndex = index;
+                              });
+                              // Load products for this category
+                              productProvider.loadProducts(
+                                categoryId: category.id,
+                                refresh: true,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
         ),
       ],
     );
@@ -857,12 +1027,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Widget _buildCategoryChips() {
     final productProvider = context.watch<ProductProvider>();
-    final categories = productProvider.categories;
+    final allCategories = productProvider.categories;
+    final filteredCategories = allCategories
+        .where((c) => c.type == _selectedTypeTab)
+        .toList();
     final isLoading = productProvider.categoriesStatus == LoadingStatus.loading;
 
     return SizedBox(
       height: 36,
-      child: isLoading && categories.isEmpty
+      child: isLoading && allCategories.isEmpty
           ? ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: 5,
@@ -872,7 +1045,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           : ListView.separated(
               scrollDirection: Axis.horizontal,
               // +1 for "All" chip at the start
-              itemCount: categories.length + 1,
+              itemCount: filteredCategories.length + 1,
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 // First item is "All"
@@ -882,27 +1055,30 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     delay: const Duration(milliseconds: 60),
                     child: CategoryChip(
                       label: 'All',
-                      isSelected: _selectedCategoryIndex == -1,
+                      isSelected: _selectedCategoryIndex == -1 && !_isFilterMode,
                       onTap: () {
                         setState(() {
                           _selectedCategoryIndex = -1;
+                          _isFilterMode = false;
                         });
-                        // Load all featured products
+                        // Load all products (no category filter)
+                        productProvider.loadProducts(refresh: true);
                         productProvider.loadFeaturedProducts(forceRefresh: true);
                       },
                     ),
                   );
                 }
-                final category = categories[index - 1];
+                final category = filteredCategories[index - 1];
                 return AnimatedListItem(
                   index: index,
                   delay: const Duration(milliseconds: 60),
                   child: CategoryChip(
                     label: category.name,
-                    isSelected: _selectedCategoryIndex == index - 1,
+                    isSelected: _selectedCategoryIndex == index - 1 && !_isFilterMode,
                     onTap: () {
                       setState(() {
                         _selectedCategoryIndex = index - 1;
+                        _isFilterMode = false;
                       });
                       // Load products for this category
                       productProvider.loadProducts(
@@ -919,7 +1095,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Widget _buildProductsSection() {
     final productProvider = context.watch<ProductProvider>();
-    final categories = productProvider.categories;
+    final filteredCategories = productProvider.categories
+        .where((c) => c.type == _selectedTypeTab)
+        .toList();
 
     // Determine which products to show based on mode
     List products;
@@ -931,17 +1109,35 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       products = productProvider.searchResults;
       isLoading = productProvider.searchStatus == LoadingStatus.loading;
       sectionTitle = 'Search Results';
+    } else if (_isFilterMode) {
+      // Filter mode
+      products = productProvider.products;
+      isLoading = productProvider.productsStatus == LoadingStatus.loading;
+      sectionTitle = 'Filtered Results';
     } else if (_selectedCategoryIndex == -1) {
-      // Featured mode
-      products = productProvider.featuredProducts;
-      isLoading = productProvider.featuredStatus == LoadingStatus.loading;
-      sectionTitle = 'Featured';
+      // "All" mode - show all products matching the selected tab type
+      final tabCategoryIds = filteredCategories.map((c) => c.id).toSet();
+      bool matchesTab(p) =>
+          p.category?.type == _selectedTypeTab ||
+          (p.categoryId != null && tabCategoryIds.contains(p.categoryId));
+
+      final allProducts =
+          productProvider.products.where(matchesTab).toList();
+      final featured =
+          productProvider.featuredProducts.where(matchesTab).toList();
+
+      // Prefer the full products list; fall back to featured if products
+      // haven't been loaded yet.
+      products = allProducts.isNotEmpty ? allProducts : featured;
+      isLoading = productProvider.productsStatus == LoadingStatus.loading &&
+          products.isEmpty;
+      sectionTitle = 'All';
     } else {
       // Category mode
       products = productProvider.products;
       isLoading = productProvider.productsStatus == LoadingStatus.loading;
-      sectionTitle = _selectedCategoryIndex < categories.length
-          ? categories[_selectedCategoryIndex].name
+      sectionTitle = _selectedCategoryIndex < filteredCategories.length
+          ? filteredCategories[_selectedCategoryIndex].name
           : 'Products';
     }
 
@@ -962,15 +1158,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   color: AppColors.textHeading,
                 ),
               ),
-              if (!_isSearchMode && _selectedCategoryIndex >= 0 && _selectedCategoryIndex < categories.length)
+              if (!_isSearchMode && _selectedCategoryIndex >= 0 && _selectedCategoryIndex < filteredCategories.length)
                 GestureDetector(
                   onTap: () {
                     Navigator.pushNamed(
                       context,
                       AppRoutes.products,
                       arguments: {
-                        'categoryId': categories[_selectedCategoryIndex].id,
-                        'categoryName': categories[_selectedCategoryIndex].name,
+                        'categoryId': filteredCategories[_selectedCategoryIndex].id,
+                        'categoryName': filteredCategories[_selectedCategoryIndex].name,
                       },
                     );
                   },
@@ -996,7 +1192,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.68,
                 ),
                 itemCount: 4,
                 itemBuilder: (context, index) => const ShimmerProductCard(),
@@ -1032,9 +1228,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 0.75,
+                      childAspectRatio: 0.68,
                     ),
-                    itemCount: products.length > 6 ? 6 : products.length,
+                    itemCount: products.length,
                     itemBuilder: (context, index) {
                       final product = products[index];
                       return ScaleInWidget(
@@ -1043,7 +1239,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           imageUrl: ApiConfig.getImageUrl(product.image),
                           name: product.name,
                           description: product.shortDescription,
-                          rating: 4.5, // TODO: Add rating to product model if API supports
+                          rating: 4.5,
                           price: product.priceAsDouble,
                           onTap: () {
                             Navigator.pushNamed(
@@ -1056,16 +1252,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             );
                           },
                           onAddTap: () {
-                            // Add to cart
-                            final cartProvider = context.read<CartProvider>();
-                            cartProvider.addToCart(product: product);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${product.name} added to cart'),
-                                backgroundColor: AppColors.success,
-                                behavior: SnackBarBehavior.floating,
-                                duration: const Duration(seconds: 1),
-                              ),
+                            // Navigate to product detail
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.productDetail,
+                              arguments: {
+                                'slug': product.slug,
+                                'product': product,
+                              },
                             );
                           },
                         ),
@@ -1079,9 +1273,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
 /// Filter Bottom Sheet Widget
 class _FilterBottomSheet extends StatefulWidget {
-  final Function(double? minPrice, double? maxPrice, String? sortBy) onApply;
-
-  const _FilterBottomSheet({required this.onApply});
+  const _FilterBottomSheet();
 
   @override
   State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -1264,12 +1456,11 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
             height: 56,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
-                widget.onApply(
-                  _priceRange.start,
-                  _priceRange.end,
-                  _selectedSort,
-                );
+                Navigator.pop(context, {
+                  'minPrice': _priceRange.start,
+                  'maxPrice': _priceRange.end,
+                  'sortBy': _selectedSort,
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

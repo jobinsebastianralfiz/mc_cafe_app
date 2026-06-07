@@ -33,7 +33,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final authProvider = context.read<AuthProvider>();
     final email = _emailController.text.trim();
 
-    final success = await authProvider.resendOtp(email: email);
+    final success = await authProvider.resendOtp(email: email, type: 'registration');
 
     if (!mounted) return;
 
@@ -42,7 +42,7 @@ class _OtpScreenState extends State<OtpScreen> {
       Navigator.pushNamed(
         context,
         AppRoutes.otpVerification,
-        arguments: {'email': email},
+        arguments: {'email': email, 'otpType': 'registration'},
       );
     } else {
       _showSnackBar(

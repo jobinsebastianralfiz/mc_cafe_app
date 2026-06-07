@@ -39,15 +39,10 @@ class WishlistProvider with ChangeNotifier {
 
   /// Load wishlist from API
   Future<void> loadWishlist({bool forceRefresh = false}) async {
-    debugPrint('🔵 [WishlistProvider] loadWishlist called, forceRefresh: $forceRefresh');
-    debugPrint('🔵 [WishlistProvider] Current status: $_status');
-
     if (_status == LoadingStatus.loading && !forceRefresh) {
-      debugPrint('🟡 [WishlistProvider] Already loading, skipping');
       return;
     }
     if (_status == LoadingStatus.success && !forceRefresh) {
-      debugPrint('🟡 [WishlistProvider] Already loaded, skipping');
       return;
     }
 
@@ -57,19 +52,12 @@ class WishlistProvider with ChangeNotifier {
 
     try {
       _wishlist = await _repository.getWishlist();
-      debugPrint('🟢 [WishlistProvider] Wishlist loaded: ${_wishlist.items.length} items');
-      for (var item in _wishlist.items) {
-        debugPrint('🟢 [WishlistProvider] Item: id=${item.id}, productId=${item.productId}, name=${item.productName}');
-      }
       _updateProductIds();
-      debugPrint('🟢 [WishlistProvider] Product IDs: $_wishlistProductIds');
       _status = LoadingStatus.success;
     } on ApiException catch (e) {
-      debugPrint('🔴 [WishlistProvider] ApiException: ${e.message}');
       _setError(e.message);
       _status = LoadingStatus.error;
     } catch (e) {
-      debugPrint('🔴 [WishlistProvider] Error: $e');
       _setError('Failed to load wishlist');
       _status = LoadingStatus.error;
     }
@@ -79,8 +67,6 @@ class WishlistProvider with ChangeNotifier {
 
   /// Add product to wishlist
   Future<bool> addToWishlist(Product product) async {
-    debugPrint('🔵 [WishlistProvider] addToWishlist called for product: ${product.id} - ${product.name}');
-
     // Optimistically update UI
     final tempItem = WishlistItem(
       id: DateTime.now().millisecondsSinceEpoch,
@@ -96,27 +82,21 @@ class WishlistProvider with ChangeNotifier {
       items: [..._wishlist.items, tempItem],
     );
     _wishlistProductIds.add(product.id);
-    debugPrint('🔵 [WishlistProvider] Optimistically added to local wishlist. IDs: $_wishlistProductIds');
     notifyListeners();
 
     try {
       // Repository returns WishlistItem? on success, or throws on error
       // null return means item already exists (which is still success for us)
-      debugPrint('🔵 [WishlistProvider] Calling repository.addToWishlist...');
       await _repository.addToWishlist(product.id);
-      debugPrint('🟢 [WishlistProvider] API call successful!');
       return true;
     } on ApiException catch (e) {
-      debugPrint('🔴 [WishlistProvider] ApiException: ${e.message}');
       _setError(e.message);
       _removeFromLocalWishlist(product.id);
       return false;
     } catch (e) {
-      debugPrint('🔴 [WishlistProvider] Error: $e');
       // Check if it's an "already in wishlist" error - treat as success
       final errorMsg = e.toString().toLowerCase();
       if (errorMsg.contains('already')) {
-        debugPrint('🟡 [WishlistProvider] Already in wishlist - treating as success');
         return true;
       }
       _setError('Failed to add to wishlist');
@@ -179,6 +159,16 @@ class WishlistProvider with ChangeNotifier {
     _status = LoadingStatus.initial;
     _clearError();
     notifyListeners();
+  }
+
+  /// Get wishlist count from API
+  Future<int> fetchWishlistCount() async {
+    try {
+      final count = await _repository.getWishlistCount();
+      return count;
+    } catch (e) {
+      return itemCount; // Return local count as fallback
+    }
   }
 
   // Private methods

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
-  // TODO: Update font family when custom fonts are added
   static const String fontFamily = 'Poppins';
 
   // Headings

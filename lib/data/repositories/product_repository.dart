@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer' as developer;
+
 import '../../core/config/api_config.dart';
 import '../../core/services/api_service.dart';
 import '../models/models.dart';
@@ -95,6 +98,11 @@ class ProductRepository {
       queryParams: queryParams,
     );
 
+    developer.log(
+      const JsonEncoder.withIndent('  ').convert(response.data),
+      name: 'API/products',
+    );
+
     final data = response['data'] as Map<String, dynamic>;
     final productsJson = data['products'] as List;
     final products = productsJson
@@ -140,6 +148,11 @@ class ProductRepository {
   /// Get all active banners
   Future<List<Banner>> getBanners() async {
     final response = await _apiService.get(ApiConfig.banners);
+
+    developer.log(
+      const JsonEncoder.withIndent('  ').convert(response.data),
+      name: 'API/banners',
+    );
 
     final data = response['data'] as Map<String, dynamic>;
     final bannersJson = data['banners'] as List;

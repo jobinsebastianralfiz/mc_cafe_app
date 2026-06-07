@@ -83,6 +83,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           onFieldSubmitted: widget.onSubmitted,
           validator: widget.validator,
           autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
+          autocorrect: !widget.obscureText,
+          enableSuggestions: !widget.obscureText,
+          smartDashesType: widget.obscureText ? SmartDashesType.disabled : SmartDashesType.enabled,
+          smartQuotesType: widget.obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled,
           style: const TextStyle(
             fontFamily: 'Sora',
             fontSize: 14,
@@ -105,7 +109,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             suffixIcon: widget.obscureText
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                       color: AppColors.grey,
                       size: 20,
                     ),
