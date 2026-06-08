@@ -63,8 +63,9 @@ class ShimmerProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 1.0,
+            // Flex the image so it absorbs any slack in the grid cell and the
+            // fixed-height text block below can never overflow the card.
+            Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.lightGrey,

@@ -503,7 +503,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.62,
         ),
         itemCount: 6,
         itemBuilder: (context, index) => const ShimmerProductCard(),
@@ -557,7 +557,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.68,
+            childAspectRatio: 0.62,
           ),
           itemCount: products.length,
           itemBuilder: (context, index) {

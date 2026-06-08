@@ -1192,7 +1192,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   crossAxisCount: 2,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 0.68,
+                  childAspectRatio: 0.62,
                 ),
                 itemCount: 4,
                 itemBuilder: (context, index) => const ShimmerProductCard(),
@@ -1228,7 +1228,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 0.68,
+                      childAspectRatio: 0.62,
                     ),
                     itemCount: products.length,
                     itemBuilder: (context, index) {
