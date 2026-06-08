@@ -62,10 +62,16 @@ class ApiService {
   // ============== HTTP Methods ==============
 
   /// GET request
+  ///
+  /// Set [triggerUnauthorizedCallback] to `false` to suppress the global
+  /// 401 → logout/redirect handler for this call (e.g. silent startup token
+  /// validation, where an invalid token should fall through to "guest" rather
+  /// than force-navigate to login).
   Future<ApiResponse> get(
     String endpoint, {
     Map<String, dynamic>? queryParams,
     bool requiresAuth = true,
+    bool triggerUnauthorizedCallback = true,
   }) async {
     final url = queryParams != null
         ? ApiConfig.getUrlWithParams(endpoint, queryParams)
@@ -76,6 +82,7 @@ class ApiService {
         Uri.parse(url),
         headers: requiresAuth ? _authHeaders : _defaultHeaders,
       ),
+      triggerUnauthorizedCallback: triggerUnauthorizedCallback,
     );
   }
 
@@ -186,13 +193,17 @@ class ApiService {
 
   /// Handle request with timeout and error handling
   Future<ApiResponse> _handleRequest(
-    Future<http.Response> Function() request,
-  ) async {
+    Future<http.Response> Function() request, {
+    bool triggerUnauthorizedCallback = true,
+  }) async {
     try {
       final response = await request().timeout(
         Duration(seconds: ApiConfig.timeoutSeconds),
       );
-      return _processResponse(response);
+      return _processResponse(
+        response,
+        triggerUnauthorizedCallback: triggerUnauthorizedCallback,
+      );
     } on SocketException {
       throw ApiException.network();
     } on TimeoutException {
@@ -206,7 +217,10 @@ class ApiService {
   }
 
   /// Process HTTP response
-  ApiResponse _processResponse(http.Response response) {
+  ApiResponse _processResponse(
+    http.Response response, {
+    bool triggerUnauthorizedCallback = true,
+  }) {
     dynamic body;
 
     // Parse response body
@@ -228,7 +242,7 @@ class ApiService {
     }
 
     // Handle 401 Unauthorized - token expired
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 && triggerUnauthorizedCallback) {
       // Trigger unauthorized callback (logout)
       onUnauthorized?.call();
     }

@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/theme/app_colors.dart';
-import '../../config/theme/app_text_styles.dart';
-import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
-import '../../widgets/custom_button.dart';
 import '../../widgets/pattern_background.dart';
 
+/// Splash / bootstrap screen.
+///
+/// Restores auth state, then routes:
+///  - authenticated user  → home
+///  - everyone else        → home in guest mode (public menu). Account actions
+///    prompt for login via [AuthGuard]; there is no login wall on launch.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -17,8 +20,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _isInitializing = true;
-
   @override
   void initState() {
     super.initState();
@@ -31,139 +32,39 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _initializeApp() async {
     final authProvider = context.read<AuthProvider>();
 
-    // Initialize auth state
+    // Initialize auth state (silently validates any stored token).
     await authProvider.init();
 
     if (!mounted) return;
 
-    // If user is already logged in, go directly to home
+    // If user is already logged in, go directly to home.
     if (authProvider.isAuthenticated) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
       return;
     }
 
-    // Show the welcome screen
-    setState(() {
-      _isInitializing = false;
-    });
-  }
-
-  void _handleGetStarted() {
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
-  }
-
-  void _handleBrowseAsGuest() {
-    // Enter guest mode — browse freely; account actions will prompt for login.
-    context.read<AuthProvider>().continueAsGuest();
+    // Not logged in → open the public menu as a guest. Account actions
+    // (cart, checkout, orders, profile) prompt for login via AuthGuard.
+    authProvider.continueAsGuest();
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Show loading while initializing
-    if (_isInitializing) {
-      return Scaffold(
-        body: PatternBackground(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/logos/mc_logo.png',
-                  height: 100,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 24),
-                const CircularProgressIndicator(
-                  color: AppColors.primary,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       body: PatternBackground(
-        backgroundImage: Image.asset(
-          'assets/images/coffee_cup.png',
-          fit: BoxFit.cover,
-        ),
-        child: SafeArea(
+        child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: screenHeight * 0.08),
-
-              // Logo
               Image.asset(
                 'assets/logos/mc_logo.png',
-                height: 80,
+                height: 100,
                 fit: BoxFit.contain,
               ),
-
-              const Spacer(),
-
-              // Bottom content
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppConstants.paddingL,
-                ),
-                child: Column(
-                  children: [
-                    // Heading
-                    Text(
-                      'A Taste Worth\nSavouring',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Sora',
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        height: 36 / 28,
-                        color: AppColors.accent,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Subtitle
-                    Text(
-                      'Blended Daily By Our Dedicated Team',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.accent,
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Get Started button
-                    CustomButton(
-                      text: 'Get Started',
-                      onPressed: _handleGetStarted,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Browse as Guest — skip login and explore the menu
-                    TextButton(
-                      onPressed: _handleBrowseAsGuest,
-                      child: Text(
-                        'Browse as Guest',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.accent,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                          decorationColor: AppColors.accent,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: screenHeight * 0.05),
-                  ],
-                ),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(
+                color: AppColors.primary,
               ),
             ],
           ),

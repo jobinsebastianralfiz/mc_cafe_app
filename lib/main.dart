@@ -88,6 +88,12 @@ void main() async {
 void _handleUnauthorized() async {
   // Prevent multiple logout calls
   if (_isLoggingOut) return;
+
+  // Only force a real session to login. Guests carry no token, so a 401 from
+  // an endpoint that isn't public yet must NOT kick them to the login screen —
+  // they should keep browsing the public menu.
+  if (StorageService.instance.authorizationHeader == null) return;
+
   _isLoggingOut = true;
 
   // Clear auth data

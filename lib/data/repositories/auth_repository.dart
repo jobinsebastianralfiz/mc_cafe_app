@@ -159,8 +159,15 @@ class AuthRepository {
   }
 
   /// Get current user profile
-  Future<User> getProfile() async {
-    final response = await _apiService.get(ApiConfig.profile);
+  ///
+  /// Pass [silent] when probing the token at startup: a 401 then means the
+  /// stored token is stale and should resolve to "not logged in", NOT trigger
+  /// the global logout→login redirect (which would skip guest browsing).
+  Future<User> getProfile({bool silent = false}) async {
+    final response = await _apiService.get(
+      ApiConfig.profile,
+      triggerUnauthorizedCallback: !silent,
+    );
 
     final data = response['data'] as Map<String, dynamic>;
     final user = User.fromJson(data['user'] as Map<String, dynamic>);
@@ -227,7 +234,7 @@ class AuthRepository {
     if (!isLoggedIn || authToken == null) return false;
 
     try {
-      await getProfile();
+      await getProfile(silent: true);
       return true;
     } on ApiException catch (e) {
       if (e.isAuthError) {
